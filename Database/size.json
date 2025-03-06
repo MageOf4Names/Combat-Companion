@@ -1,0 +1,28 @@
+{
+    "_default": {
+        "1": {
+            "area": "2.5 ft X 2.5 ft",
+            "size": "Tiny"
+        },
+        "2": {
+            "area": "5 ft X 5 ft",
+            "size": "Small"
+        },
+        "3": {
+            "area": "5 ft X 5 ft",
+            "size": "Medium"
+        },
+        "4": {
+            "area": "10 ft X 10 ft",
+            "size": "Large"
+        },
+        "5": {
+            "area": "15 ft X 15 ft",
+            "size": "Huge"
+        },
+        "6": {
+            "area": "20 ft X 20 ft",
+            "size": "Gargantuan"
+        }
+    }
+}

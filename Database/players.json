@@ -1,0 +1,83 @@
+{
+    "_default": {
+        "1": {
+            "name": "Percy Padfoot",
+            "level": 4,
+            "class": {
+                "9": 4
+            },
+            "hp": 31,
+            "ac": 17,
+            "size": 3,
+            "alignment": "Chaotic Good",
+            "languages": [
+                "Common",
+                "Elvish",
+                "Thieves Cant"
+            ],
+            "species": 32,
+            "speed": [
+                30,
+                0,
+                0,
+                20,
+                0
+            ],
+            "ability_scores": [
+                8,
+                20,
+                12,
+                14,
+                12,
+                14
+            ],
+            "saves": [
+                0,
+                1,
+                0,
+                1,
+                0,
+                0
+            ],
+            "skills": [
+                0,
+                1,
+                2,
+                2,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                1,
+                1
+            ],
+            "senses": {
+                "2": 60
+            },
+            "damage_types": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "notes": ""
+        }
+    }
+}
