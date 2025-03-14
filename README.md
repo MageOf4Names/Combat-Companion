@@ -19,11 +19,11 @@ Stage 1: Design (Current)
   
   User Interface:
   * Decide on a UI package (DONE)
-  * Design main menu and determine functionality
+  * Design main menu and determine functionality (DONE)
   * Design sub menus and determine number/function of sub menus
   * Design combat tracker menus and interfaces
   * Design editing menus and interactions in combat tracker
-  * Design creation/editing windows from the main menu
+  * Design creation/editing windows from the main menu (DONE)
 
 Stage 2: Development
   * Build out the database
