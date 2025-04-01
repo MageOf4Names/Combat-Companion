@@ -77,7 +77,8 @@
                 0,
                 0
             ],
-            "notes": ""
+            "notes": "",
+            "inparty" : true
         }
     }
 }

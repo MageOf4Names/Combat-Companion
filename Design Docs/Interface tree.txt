@@ -1,0 +1,47 @@
+Home Screen
+    1. Build an Encounter
+        1. Add Party
+        2. Add PC
+        3. Add Monster
+        4. Enter Initiative
+            1. Edit information
+                1. Add condition
+                2. Delete entity
+            2. View non-focused initiative
+                1. Edit information
+                    1. Add condition
+                2. Delete entity
+            3. Move to next initiative
+            4. Add new monster/Player
+                1. Monster
+                2. Player
+    2. Player Database
+        1. Add new player
+        2. Edit existing player
+        3. Delete Player Data
+        4. View Parties
+            1. Create new party
+            2. Edit existing party
+                1. Add new PC to party
+            3. Delete party
+    3. Monsters Database
+        1. Add new monster
+        2. Edit existing monster
+        3. Delete monster
+    4. Lookup Databases
+        1. View Classes
+            1. Add new class
+            2. Edit existing class
+            3. Delete class
+        2. View Species
+            1. Add new species
+            2. Edit existing species
+            3. Delete species
+        3. View Monster Types
+            1. Add new type
+            2. Edit existing type
+            3. Delete type
+        4. View Conditions
+            1. Add new condition
+            2. Edit existing condition
+            3. Delete condition

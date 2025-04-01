@@ -23,15 +23,15 @@
         "4": {
             "name": "Frightened",
             "effects": [
-                "Frightened creature has disadvantage on ability checks and attack rolls while the source of it's fear is within line of sight.",
-                "The creature cannot willingly move closer to the source of its fear."
+                "- Frightened creature has disadvantage on ability checks and attack rolls while the source of it's fear is within line of sight.",
+                "- The creature cannot willingly move closer to the source of its fear."
             ]
         },
         "5": {
             "name": "Grappled",
             "effects": [
                 "- Grappled creature's speed becomes 0, and it cannot benefit from any bonus to its speed.",
-                "-  The condition ends if the grappler is incapacitated.",
+                "- The condition ends if the grappler is incapacitated.",
                 "- The condition also ends if an effect removes the grappled creature from reach of the grappler."
             ]
         },

@@ -1,0 +1,123 @@
+{
+    "_default": {
+        "1": {
+            "name": "Blinded",
+            "effects": [
+                "- Blined creatures cannot see and automatically fails any ability check that requires sight.",
+                "- Attack rolls against blinded creature have advantage, and their attack rolls have disadvantage."
+            ]
+        },
+        "2": {
+            "name": "Charmed",
+            "effects": [
+                "- Charmed creature can't attack the charmer or target the charmer with harmful abilities or magical effects.",
+                "- The charmer has advantage on any social ability checks on the charmed creature."
+            ]
+        },
+        "3": {
+            "name": "Deafened",
+            "effects": [
+                "- Deafened creature can't hear and automatically fails any ability check that requires hearing."
+            ]
+        },
+        "4": {
+            "name": "Frightened",
+            "effects": [
+                "- Frightened creature has disadvantage on ability checks and attack rolls while the source of it's fear is within line of sight.",
+                "- The creature cannot willingly move closer to the source of its fear."
+            ]
+        },
+        "5": {
+            "name": "Grappled",
+            "effects": [
+                "- Grappled creature's speed becomes 0, and it cannot benefit from any bonus to its speed.",
+                "- The condition ends if the grappler is incapacitated.",
+                "- The condition also ends if an effect removes the grappled creature from reach of the grappler."
+            ]
+        },
+        "6": {
+            "name": "Incapacitated",
+            "effects": [
+                "- Incapacitated creature cannot take actions or reactions."
+            ]
+        },
+        "7": {
+            "name": "Invisible",
+            "effects": [
+                "- Invisible creature is impossible to see without the aid of magic or a special sense. The creature's location can be detected by sound or tracks.",
+                "- For purposes of hiding, the creature is heavily obscured.- Attack rolls against the creature have disadvantage, and the creature's attack rolls have advantage."
+            ]
+        },
+        "8": {
+            "name": "Paralyzed",
+            "effects": [
+                "- Paralyzed creature is incapacitated and cannot move or speak.",
+                "- The creature automatically fails Str and Dex saves.",
+                "- Attack rolls against the creature have advantage.",
+                "- Any attack that hits the creature crits if the attacker is within 5 feet of the creature."
+            ]
+        },
+        "9": {
+            "name": "Petrified",
+            "effects": [
+                "- Petrified creature is transformed, along with any nonmagical objects carried, into a solid inanimate substance. Its weight increases by a factor of then and it ceases aging.",
+                "- The creature is incapacitated, can't move or speak, and is unaware of its surroundings.",
+                "- Attack rolls against the creature have advantage.",
+                "- The creature automatically fails Str and Dex saves.",
+                "- The creature has resistance to all damage.",
+                "- The creature is immune to poison and disease, although any poison or disease already in its system is suspended, not neutralized."
+            ]
+        },
+        "10": {
+            "name": "Poisoned",
+            "effects": [
+                "- Poisoned creature has disadvantage on attack rolls and ability checks."
+            ]
+        },
+        "11": {
+            "name": "Prone",
+            "effects": [
+                "- Prone creature's only movement option is to crawl, unless it uses half its movement to stand and end the condition.",
+                "- The creature has disadvantage on attack rolls.",
+                "- Attacks against the creature have advantage if the attacker is within 5 feet. Otherwise, they have disadvantage."
+            ]
+        },
+        "12": {
+            "name": "Restrained",
+            "effects": [
+                "- Restrained creature's speed becomes 0, and it cannot benefit from any bonus to its speed.",
+                "- Attack rolls against the creature have advantage, and the creature's attack rolls have disadvantage.",
+                "- The creature has disadvantage on Dex saves."
+            ]
+        },
+        "13": {
+            "name": "Stunned",
+            "effects": [
+                "- Stunned creature is incapacitated, can't move, and can speak only falteringly.",
+                "- The creature automatically fails Str and Dex saves.",
+                "- Attack rolls against the creature have advantage."
+            ]
+        },
+        "14": {
+            "name": "Unconscious",
+            "effects": [
+                "- Unconscious creature is incapacitated, can't move or speak, and is unaware of its surroundings.",
+                "- The creature drops whatever it is holding and falls prone.",
+                "- The creature automatically fails Str and Dex saves.",
+                "- Attack rolls against the creature have advantage.",
+                "- Any attack that hits the creature is a critical hit if the attacker is within 5 feet of the creature."
+            ]
+        },
+        "15": {
+            "name": "Exhaustion",
+            "effects": [
+                "Level 1: Creature has disadvantage on ability checks.",
+                "Level 2: Creature's speed is halved.",
+                "Level 3: Creature had disadvantage on attack rolls and saving throws.",
+                "Level 4: Creature's hitpoint maximum is halved.",
+                "Level 5: Creature's speed is reduced to 0.",
+                "Level 6: Exhausted creature dies."
+            ]
+        }
+    }
+}

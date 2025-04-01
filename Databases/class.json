@@ -1,6 +1,14 @@
 {
     "_default": {
         "1": {
+            "hit-die": "d8",
+            "name": "Artificer",
+            "saving-throws": [
+                "Constitution",
+                "Intelligence"
+            ]
+        },
+        "2": {
             "hit-die": "d12",
             "name": "Barbarian",
             "saving-throws": [
@@ -8,7 +16,7 @@
                 "Constitution"
             ]
         },
-        "2": {
+        "3": {
             "hit-die": "d8",
             "name": "Bard",
             "saving-throws": [
@@ -16,7 +24,7 @@
                 "Charisma"
             ]
         },
-        "3": {
+        "4": {
             "hit-die": "d8",
             "name": "Cleric",
             "saving-throws": [
@@ -24,7 +32,7 @@
                 "Charisma"
             ]
         },
-        "4": {
+        "5": {
             "hit-die": "d8",
             "name": "Druid",
             "saving-throws": [
@@ -32,7 +40,7 @@
                 "Wisdom"
             ]
         },
-        "5": {
+        "6": {
             "hit-die": "d10",
             "name": "Fighter",
             "saving-throws": [
@@ -40,7 +48,7 @@
                 "Constitution"
             ]
         },
-        "6": {
+        "7": {
             "hit-die": "d8",
             "name": "Monk",
             "saving-throws": [
@@ -48,7 +56,7 @@
                 "Dexterity"
             ]
         },
-        "7": {
+        "8": {
             "hit-die": "d10",
             "name": "Paladin",
             "saving-throws": [
@@ -56,7 +64,7 @@
                 "Charisma"
             ]
         },
-        "8": {
+        "9": {
             "hit-die": "d10",
             "name": "Ranger",
             "saving-throws": [
@@ -64,7 +72,7 @@
                 "Dexterity"
             ]
         },
-        "9": {
+        "10": {
             "hit-die": "d8",
             "name": "Rogue",
             "saving-throws": [
@@ -72,7 +80,7 @@
                 "Intelligence"
             ]
         },
-        "10": {
+        "11": {
             "hit-die": "d6",
             "name": "Sorcerer",
             "saving-throws": [
@@ -80,7 +88,7 @@
                 "Charisma"
             ]
         },
-        "11": {
+        "12": {
             "hit-die": "d8",
             "name": "Warlock",
             "saving-throws": [
@@ -88,7 +96,7 @@
                 "Charisma"
             ]
         },
-        "12": {
+        "13": {
             "hit-die": "d6",
             "name": "Wizard",
             "saving-throws": [

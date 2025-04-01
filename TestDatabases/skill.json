@@ -1,0 +1,76 @@
+{
+    "_default": {
+        "1": {
+            "skill": "Athletics",
+            "stat": "Strength"
+        },
+        "2": {
+            "skill": "Acrobatics",
+            "stat": "Dexterity"
+        },
+        "3": {
+            "skill": "Sleight of Hand",
+            "stat": "Dexterity"
+        },
+        "4": {
+            "skill": "Stealth",
+            "stat": "Dexterity"
+        },
+        "5": {
+            "skill": "Arcana",
+            "stat": "Intelligence"
+        },
+        "6": {
+            "skill": "History",
+            "stat": "Intelligence"
+        },
+        "7": {
+            "skill": "Investigation",
+            "stat": "Intelligence"
+        },
+        "8": {
+            "skill": "Nature",
+            "stat": "Intelligence"
+        },
+        "9": {
+            "skill": "Religion",
+            "stat": "Intelligence"
+        },
+        "10": {
+            "skill": "Animal Handling",
+            "stat": "Wisdom"
+        },
+        "11": {
+            "skill": "Insight",
+            "stat": "Wisdom"
+        },
+        "12": {
+            "skill": "Medicine",
+            "stat": "Wisdom"
+        },
+        "13": {
+            "skill": "Perception",
+            "stat": "Wisdom"
+        },
+        "14": {
+            "skill": "Survival",
+            "stat": "Wisdom"
+        },
+        "15": {
+            "skill": "Deception",
+            "stat": "Charisma"
+        },
+        "16": {
+            "skill": "Intimidation",
+            "stat": "Charisma"
+        },
+        "17": {
+            "skill": "Performance",
+            "stat": "Charisma"
+        },
+        "18": {
+            "skill": "Persuasion",
+            "stat": "Charisma"
+        }
+    }
+}

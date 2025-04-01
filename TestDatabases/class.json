@@ -1,0 +1,108 @@
+{
+    "_default": {
+        "1": {
+            "hit-die": "d8",
+            "name": "Artificer",
+            "saving-throws": [
+                "Constitution",
+                "Intelligence"
+            ]
+        },
+        "2": {
+            "hit-die": "d12",
+            "name": "Barbarian",
+            "saving-throws": [
+                "Strength",
+                "Constitution"
+            ]
+        },
+        "3": {
+            "hit-die": "d8",
+            "name": "Bard",
+            "saving-throws": [
+                "Dexterity",
+                "Charisma"
+            ]
+        },
+        "4": {
+            "hit-die": "d8",
+            "name": "Cleric",
+            "saving-throws": [
+                "Wisdom",
+                "Charisma"
+            ]
+        },
+        "5": {
+            "hit-die": "d8",
+            "name": "Druid",
+            "saving-throws": [
+                "Intelligence",
+                "Wisdom"
+            ]
+        },
+        "6": {
+            "hit-die": "d10",
+            "name": "Fighter",
+            "saving-throws": [
+                "Strength",
+                "Constitution"
+            ]
+        },
+        "7": {
+            "hit-die": "d8",
+            "name": "Monk",
+            "saving-throws": [
+                "Strength",
+                "Dexterity"
+            ]
+        },
+        "8": {
+            "hit-die": "d10",
+            "name": "Paladin",
+            "saving-throws": [
+                "Wisdom",
+                "Charisma"
+            ]
+        },
+        "9": {
+            "hit-die": "d10",
+            "name": "Ranger",
+            "saving-throws": [
+                "Strength",
+                "Dexterity"
+            ]
+        },
+        "10": {
+            "hit-die": "d8",
+            "name": "Rogue",
+            "saving-throws": [
+                "Dexterity",
+                "Intelligence"
+            ]
+        },
+        "11": {
+            "hit-die": "d6",
+            "name": "Sorcerer",
+            "saving-throws": [
+                "Constitution",
+                "Charisma"
+            ]
+        },
+        "12": {
+            "hit-die": "d8",
+            "name": "Warlock",
+            "saving-throws": [
+                "Wisdom",
+                "Charisma"
+            ]
+        },
+        "13": {
+            "hit-die": "d6",
+            "name": "Wizard",
+            "saving-throws": [
+                "Intelligence",
+                "Wisdom"
+            ]
+        }
+    }
+}
