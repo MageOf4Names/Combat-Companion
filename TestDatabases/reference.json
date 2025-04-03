@@ -1,0 +1,120 @@
+{
+    "senses": {
+        "1": {
+            "description": "A monster with blindsight can perceive its surroundings without relying on sight, within a specific radius.",
+            "sense": "Blindsight"
+        },
+        "2": {
+            "description": "A monster with darkvision can see in the dark within a specific radius. The monster can see in dim light within the radius as if it were bright light, and in darkness as if it were dim light. The monster can’t discern color in darkness, only shades of gray.",
+            "sense": "Darkvision"
+        },
+        "3": {
+            "description": "A monster with tremorsense can detect and pinpoint the origin of vibrations within a specific radius, provided that the monster and the source of the vibrations are in contact with the same ground or substance. Tremorsense can’t be used to detect flying or incorporeal creatures.",
+            "sense": "Tremorsense"
+        },
+        "4": {
+            "description": "A monster with truesight can, out to a specific range, see in normal and magical darkness, see invisible creatures and objects, automatically detect visual illusions and succeed on saving throws against them, and perceive the original form of a shapechanger or a creature that is transformed by magic. Furthermore, the monster can see into the Ethereal Plane within the same range.",
+            "sense": "Truesight"
+        }
+    },
+    "sizes": {
+        "1": {
+            "area": "2.5ftX2.5ft",
+            "size": "Tiny"
+        },
+        "2": {
+            "area": "5ft X 5ft",
+            "size": "Small"
+        },
+        "3": {
+            "area": "5ft 5ft",
+            "size": "Medium"
+        },
+        "4": {
+            "area": "10ft X 10ft",
+            "size": "Large"
+        },
+        "5": {
+            "area": "15ft X 15ft",
+            "size": "Huge"
+        },
+        "6": {
+            "area": "20ft X 20ft",
+            "size": "Gargantuan"
+        }
+    },
+    "skills": {
+        "1": {
+            "skill": "Athletics",
+            "stat": "Strength"
+        },
+        "2": {
+            "skill": "Acrobatics",
+            "stat": "Dexterity"
+        },
+        "3": {
+            "skill": "Sleight of Hand",
+            "stat": "Dexterity"
+        },
+        "4": {
+            "skill": "Stealth",
+            "stat": "Dexterity"
+        },
+        "5": {
+            "skill": "Arcana",
+            "stat": "Intelligence"
+        },
+        "6": {
+            "skill": "History",
+            "stat": "Intelligence"
+        },
+        "7": {
+            "skill": "Investigation",
+            "stat": "Intelligence"
+        },
+        "8": {
+            "skill": "Nature",
+            "stat": "Intelligence"
+        },
+        "9": {
+            "skill": "Religion",
+            "stat": "Intelligence"
+        },
+        "10": {
+            "skill": "Animal Handling",
+            "stat": "Wisdom"
+        },
+        "11": {
+            "skill": "Insight",
+            "stat": "Wisdom"
+        },
+        "12": {
+            "skill": "Medicine",
+            "stat": "Wisdom"
+        },
+        "13": {
+            "skill": "Perception",
+            "stat": "Wisdom"
+        },
+        "14": {
+            "skill": "Survival",
+            "stat": "Wisdom"
+        },
+        "15": {
+            "skill": "Deception",
+            "stat": "Charisma"
+        },
+        "16": {
+            "skill": "Intimidation",
+            "stat": "Charisma"
+        },
+        "17": {
+            "skill": "Performance",
+            "stat": "Charisma"
+        },
+        "18": {
+            "skill": "Persuasion",
+            "stat": "Charisma"
+        }
+    }
+}

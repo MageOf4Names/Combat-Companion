@@ -1,5 +1,5 @@
 {
-    "_default": {
+    "player_characters": {
         "1": {
             "name": "Percy Padfoot",
             "level": 4,
@@ -78,7 +78,7 @@
                 0
             ],
             "notes": "",
-            "inparty" : true
+            "inparty" : []
         }
     }
 }

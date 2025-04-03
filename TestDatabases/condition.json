@@ -1,5 +1,5 @@
 {
-    "_default": {
+    "conditions": {
         "1": {
             "name": "Blinded",
             "effects": [

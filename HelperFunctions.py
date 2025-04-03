@@ -1,10 +1,52 @@
 import re
 import random as rd
 
+encounterXP = 0
+
+# List of all valid damage types in dnd 5e and 2024 edition
+damageType = [
+    "Piercing",
+    "Bludgeoning",
+    "Slashing",
+    "Cold",
+    "Fire",
+    "Lightning",
+    "Thunder",
+    "Poison",
+    "Acid",
+    "Necrotic",
+    "Radiant",
+    "Force",
+    "Psychic",
+]
+
+# List of all valid alignments in dnd 5e and 2024 edition
+alignments = [
+    "Unaligned",
+    "Lawful Good",
+    "Lawful Neutral",
+    "Lawful Evil",
+    "Neutral Good",
+    "True Neutral",
+    "Neutral Evil",
+    "Chaotic Good",
+    "Chaotic Neutral",
+    "Chaotic Evil",
+]
+
+# Dictionary for translating stat names into list order
+statDict = {
+    "Strength": 0,
+    "Dexterity": 1,
+    "Constitution": 2,
+    "Intelligence": 3,
+    "Wisdom": 4,
+    "Charisma": 5,
+}
+
 # Takes in a player level or creature CR and outputs the corresponding proviciency modifier.
 def profByLevel(level):
     return 2 + int((level - 1) / 4)
-
 
 
 """

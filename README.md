@@ -27,8 +27,8 @@ Stage 1: Design (Current)
 
 Stage 2: Development
   * Build out the database (DONE)
-  * Test database inserts/deletes/updates
-  * Build out object wrappers for lookups and main objects
+  * Test database inserts/deletes/updates (DONE)
+  * Build out object wrappers for lookups and main objects (DONE)
   * Build out methods for basic CRUD operations
   * Build out the UI and link menus together
   * Integrate menus with the database

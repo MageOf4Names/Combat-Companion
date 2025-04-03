@@ -1,5 +1,5 @@
 {
-    "_default": {
+    "player_classes": {
         "1": {
             "hit-die": "d8",
             "name": "Artificer",

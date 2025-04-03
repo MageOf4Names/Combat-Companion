@@ -1,7 +1,9 @@
 {
-    "_default": {
+    "monsters": {
         "1": {
             "name": "Mimic",
+            "cr": 2,
+            "xp": 450,
             "hp": "58:9d8+18",
             "ac": 12,
             "size": 3,
@@ -51,8 +53,6 @@
                 0,
                 0
             ],
-            "cr": 2,
-            "xp": 450,
             "senses": {
                 "2": 60
             },
@@ -100,9 +100,9 @@
                 "False Appearance (Object Form)": "While the mimic remains motionless, it is indistinguishable from an ordinary object.",
                 "Grappler": "The mimic has advantage on attack rolls against any creature grappled by it."
             },
-            "legendary": 0,
+            "legendary": false,
             "legendary_actions": [],
-            "legendary_resistances": [],
+            "legendary_resistances": 0,
             "lair_actions": [],
             "notes": ""
         }
