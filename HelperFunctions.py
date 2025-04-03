@@ -1,5 +1,19 @@
 import re
+import math
 import random as rd
+from tinydb import TinyDB, Query
+
+players = TinyDB("TestDatabases/players.json").table("player_characters")
+monsters = TinyDB("TestDatabases/monsters.json").table("monsters")
+types = TinyDB("TestDatabases/type.json").table("monster_types")
+classes = TinyDB("TestDatabases/class.json").table("player_classes")
+species = TinyDB("TestDatabases/species.json").table("species")
+conditions = TinyDB("TestDatabases/condition.json").table("conditions")
+parties = TinyDB("TestDatabases/party.json").table("parties")
+refs = TinyDB("TestDatabases/reference.json")
+senses = refs.table("senses")
+sizes = refs.table("sizes")
+skills = refs.table("skills")
 
 encounterXP = 0
 
@@ -47,6 +61,11 @@ statDict = {
 # Takes in a player level or creature CR and outputs the corresponding proviciency modifier.
 def profByLevel(level):
     return 2 + int((level - 1) / 4)
+
+
+# Takes in an ability score and returns the associated bonus score
+def getBonus(score):
+    return math.floor((score - 10) / 2)
 
 
 """
