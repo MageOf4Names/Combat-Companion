@@ -1,5 +1,30 @@
+"""
+File:
+Brief:
+Description :
+Author: Brandon Dennis
+Version: 0.0.0
+Last updated: 4/3/2025
+TODO:
+"""
+
 from HelperFunctions import *
 from ErrorClasses import *
+
+class Encounter:
+    # Expected format for a combatant entry:
+    # [Monster_Flag, combatant data, initiative score, current_hp, max_hp]
+    def __init__(self, entries):
+        # Build objects for each combatant in the encounter
+        combatants = []
+        for c in entries:
+            if c[0]: combatants.append(Monster(c[1]. c[2], c[3], c[4]))
+            else: combatants.append(Player(c[1], c[2], c[3]))
+        # Sort by initiative value (highest value first)
+        self.combatants = sorted(combatants, key=lambda combatant: combatant.init, reverse=True)
+        # Assign highest initiative to the current focus and 
+        self.currentIndex = 0
+        self.current = self.combatants[0]
 
 """
 Combatant class is a general template for all monsters and players in combat
@@ -7,7 +32,7 @@ Contains shared attributes like Armor Class, Maximum HP, and Notes
 Methods serve to manipulate data that is not permanently saved in the database
 """
 class Combatant:
-    def __init__(self, source, init):
+    def __init__(self, source, init, currentHP):
         # Permanent values assigned from the database entry
         self.index = source.doc_id
         self.name = source["name"]
@@ -23,14 +48,14 @@ class Combatant:
         self.damages = source['damage_types']
         self.notes = source['notes']
         # Temporary values assigned during combat
-        self.init = init
+        self.init = init + source['ability_scores'][1] / 100 # Add dex score at the end to help sort ties.
         self.tempHP = 0
         self.conditions = []
         self.concentration = False
         self.conscious = True
         # Set HP stats to zero as a baseline (overridden later)
         self.maxHP = 0
-        self.currentHP = 0
+        self.currentHP = currentHP
         self.proficiency = 1
 
     """
@@ -79,6 +104,10 @@ class Combatant:
         else:
             raise UnexpectedSyntax
 
+    # Sets maximum HP to a set value temporarily (Doesn't save to database)
+    def setMaxHP(self, newMax):
+        self.maxHP = newMax
+
     # Rolls a saving throw for the given stat.
     def rollSave(self, stat):
         # Builds a statement for rolling a d20 + ability modifier
@@ -107,6 +136,10 @@ class Combatant:
     def updateNotes(self, txt):
         self.notes = txt
     
+    # Updates the initiative attribute.
+    def updateInit(self, newInit):
+        self.init = newInit + self.stats[1] / 100 # Add dex score at the end to help sort ties.
+
     # Updates the concentration field to represent if the combatant is concentration or not
     def updateConcentrate(self, con):
         self.concentration = con
@@ -124,9 +157,9 @@ Player class is used for player characters in initiative order
 Contains player-specific stats like species, class, and death saves
 """
 class Player(Combatant):
-    def __init__(self, pc, init):
+    def __init__(self, pc, init, currentHP):
         # Set all shared values through the super method
-        super().__init__(pc, init)
+        super().__init__(pc, init, currentHP)
         # Set values unique to a player character
         self.level = pc['level']
         self.playerClass = pc['class']
@@ -135,7 +168,6 @@ class Player(Combatant):
         self.deathSaves = [0, 0]
         # Override default values
         self.maxHP = pc['hp']
-        self.currentHP = self.maxHP
         self.proficiency = profByLevel(self.level)
 
     # Handles death saves either by inserted value or by rolling dice
@@ -153,9 +185,9 @@ Monster class is used for monster combatants in initiative
 Contains monster-specific stats like their Challenge Rating, XP gained, and legendary status
 """
 class Monster(Combatant):
-    def __init__(self, monst, init, isAvg):
+    def __init__(self, monst, init, currentHP, maxHP):
         # Set all shared values through the super method
-        super().__init__(monst, init)
+        super().__init__(monst, init, currentHP)
         # Set values unique to a monster
         self.cr = monst["cr"]
         self.xp = monst["xp"]
@@ -167,8 +199,7 @@ class Monster(Combatant):
         self.lRes = monst["legendary_resistances"]
         self.lair = monst["lair_actions"]
         # Override default values
-        self.maxHP = rollDice(monst["hp"], hasAvg=True, rollAvg=isAvg)
-        self.currentHP = self.maxHP
+        self.maxHP = maxHP
         self.proficiency = profByLevel(self.cr)
 
     # Overrides default method to add xp to encounter when monster is defeated.

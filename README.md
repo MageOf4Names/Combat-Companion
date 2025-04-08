@@ -1,4 +1,4 @@
-Welcome to the initiative tracker app (name TBD). This project is still a dream rather than a bit of software, but I'm working on it a bit at a time!
+Welcome to the Combat Companion (name TBD). This project is still a dream rather than a bit of software, but I'm working on it a bit at a time!
 
 The hope for this project is to create a DM tool that effectively and efficiently lets a dungeon master build and execute encounters. 
 Some of the planned features include:

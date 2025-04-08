@@ -1,3 +1,13 @@
+"""
+File:
+Brief:
+Description :
+Author: Brandon Dennis
+Version: 0.0.0
+Last updated: 4/3/2025
+TODO:
+"""
+
 import re
 import math
 import random as rd
