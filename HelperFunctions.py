@@ -1,17 +1,19 @@
 """
-File:
-Brief:
-Description :
+File: HelperFunctions.py
+Brief: Additional functions that can be used throughout the app for various purposes.
+Description: This file contains all global variables such as possible damage types, mappings from
+    strings to numerical keys, and XP trackers. This file also contains helper functions that don't fit
+    inside a single class such as methods to generate randomized values and calculating various bonus scores.
 Author: Brandon Dennis
 Version: 0.0.0
-Last updated: 4/3/2025
+Last updated: 4/10/2025
 TODO:
 """
 
 import re
 import math
 import random as rd
-from tinydb import TinyDB, Query
+from tinydb import TinyDB, Query, where
 
 players = TinyDB("TestDatabases/players.json").table("player_characters")
 monsters = TinyDB("TestDatabases/monsters.json").table("monsters")
@@ -77,6 +79,11 @@ def profByLevel(level):
 def getBonus(score):
     return math.floor((score - 10) / 2)
 
+
+# Takes in a string for a monster's HP and returns something readable
+def readHP(hpString):
+    slice = re.split(":", hpString)
+    return slice[0] + ' (' + slice[1] + ')'
 
 """
 rollDice takes in a string expression representing a series of dice and randomizes a total in that range

@@ -1,10 +1,10 @@
 """
-File:
-Brief: 
-Description :
+File: App.py
+Brief: Main executable file for the Combat Companion app.
+Description: 
 Author: Brandon Dennis
 Version: 0.0.0
-Last updated: 4/3/2025
+Last updated: 4/10/2025
 TODO: 
 """
 
@@ -89,9 +89,6 @@ class MainWindow(QMainWindow):
         lookupMenu.addSeparator()
         lookupMenu.addAction(condAction)
 
-        openFont = QFont()
-        openFont.setPointSize(30)
-
         name = QLabel()
         name.setText("Welcome to the Combat Companion!")
         name.setAlignment(Qt.AlignCenter)
@@ -108,8 +105,6 @@ class MainWindow(QMainWindow):
         background.setScaledContents(True)
         background.setLayout(layout)
 
-        # background = Color("#F1E9D2")
-
         self.setCentralWidget(background)
 
     def routeDatabase(self, dest):
@@ -117,7 +112,16 @@ class MainWindow(QMainWindow):
             dest.hide()
         else:
             dest.show()
-        print('clicked')
+    
+    def closeEvent(self, action):
+        self.monsterDB.close()
+        self.playerDB.close()
+        self.partyDB.close()
+        self.speciesDB.close()
+        self.classDB.close()
+        self.typeDB.close()
+        self.conditionDB.close()
+        super().closeEvent(action)
 
 app = QApplication()
 app.setStyle("windowsvista")
