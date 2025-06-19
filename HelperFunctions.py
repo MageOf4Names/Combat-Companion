@@ -13,7 +13,10 @@ TODO:
 import re
 import math
 import random as rd
+import time
+from enum import Enum
 from tinydb import TinyDB, Query, where
+from tinydb.table import Document
 
 players = TinyDB("TestDatabases/players.json").table("player_characters")
 monsters = TinyDB("TestDatabases/monsters.json").table("monsters")
@@ -69,6 +72,12 @@ statDict = {
     "Wisdom": 4,
     "Charisma": 5,
 }
+
+class Interactions(Enum):
+    ADD = 1
+    EDIT = 2
+    DELETE = 3
+
 
 # Takes in a player level or creature CR and outputs the corresponding proviciency modifier.
 def profByLevel(level):

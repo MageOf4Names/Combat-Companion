@@ -11,7 +11,7 @@ TODO:
 """
 
 from HelperFunctions import *
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QSize, Qt, QTimer
 from PySide6 import QtWidgets
 from PySide6.QtGui import (
     QAction,
@@ -30,6 +30,8 @@ from PySide6.QtWidgets import (
     QStackedLayout,
     QCheckBox,
     QComboBox,
+    QDialog,
+    QDialogButtonBox,
     QLabel,
     QLineEdit,
     QMainWindow,
@@ -59,6 +61,31 @@ class Color(QWidget):
         palette.setColor(QPalette.Window, QColor(color))
         self.setPalette(palette)
 
+
+class deleteDialog(QDialog):
+    def __init__(self, type, name, parent=None):
+        super().__init__(parent=parent)
+
+        self.setWindowTitle("Confirm delete")
+        
+        # Create the button box enumeration from pre-determined options
+        btn = (
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        )
+
+        # Initialize the button box and set events
+        self.buttonBox = QDialogButtonBox(btn)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+        # Arrange and set the layout
+        layout = QVBoxLayout()
+        message = QLabel(f"Would you like to delete {type}: {name}?")
+        layout.addWidget(message)
+        layout.addWidget(self.buttonBox)
+        self.setLayout(layout)
+
+
 """
 miniView: Creates a widget that can be used for scrollable areas
 Constructor takes in an index for later reference, a spacing value for text,
@@ -83,6 +110,20 @@ class miniView(QWidget):
         # Set height according to spacing parameter and number of rows
         self.setFixedHeight(len(info) * spacing)
         self.setLayout(layout)
+
+    def cleanup(self):
+        # Go down each row and remove widgets.
+        while self.layout.data.itemAt(0) != None:
+            row = self.data.itemAt(0).wid
+            # Clear all of the data in each row
+            while row.data.itemAt(0) != None:
+                w = row.data.itemAt(0).wid
+                w.setParent(None)
+                row.removeWidget(w)
+                w.deleteLater()
+            row.setParent(None)
+            self.layout.removeWidget(row)
+            row.deleteLater()
 
 
 """
@@ -122,7 +163,7 @@ class dbView(QMainWindow):
 
         # Creates the buttons for returning to the main menu and adding a new entry to the database
         self.addButton = QPushButton()
-        self.addButton.clicked.connect(self.addNew)
+        self.addButton.clicked.connect(self.add)
         returnButton = QPushButton('Return')
         returnButton.clicked.connect(self.hide)
         # Puts the buttons in a menu to add to the bottom of the menu
@@ -135,8 +176,25 @@ class dbView(QMainWindow):
         background.setLayout(layout)
         self.setCentralWidget(background)
 
-    def addNew(self):
-        print('Add')
+    def add(self):
+        match self.__class__.__name__:
+            case "monsterView":
+                self.interact = monsterInteract(Interactions.ADD)
+            case "playerViewView":
+                self.interact = playerInteract(Interactions.ADD)
+            case "partyView":
+                self.interact = partyInteract(Interactions.ADD)
+            case "speciesView":
+                self.interact = speciesInteract(Interactions.ADD)
+            case "classView":
+                self.interact = classInteract(Interactions.ADD)
+            case "monsterTypeView":
+                self.interact = monsterTypeInteract(Interactions.ADD)
+            case "conditionView":
+                self.interact = conditionInteract(Interactions.ADD)
+            case _:
+                self.interact = dbInteract(Interactions.ADD)
+        self.interact.show()
 
     def edit(self, target):
         print('Edit')
@@ -145,6 +203,17 @@ class dbView(QMainWindow):
         for i in range(25):
             dbEntry = QLabel(f"Tex Label {i}")
             self.data.addWidget(dbEntry)
+
+    def cleanData(self):
+        while (self.data.itemAt(0) != None):
+            w = self.data.itemAt(0).wid
+            # If this is one of the main tables, clear mini views.
+            if w.__class__.__name__ == miniView:
+                w.cleanup()                        
+            # Clean up the attached widget
+            w.setParent(None)
+            self.data.removeWidget(w)
+            w.deleteLater()
 
 
 """
@@ -160,17 +229,19 @@ class monsterView(dbView):
         self.addButton.setText('Add a new Monstser')
 
     def populate(self):
+        # Clear all previous data in the section
+        self.cleanData()
         # Go through all monsters in the database and generate a miniView widget
         for m in monsters.all():
             # Create a list of HBoxLayouts to send to the miniView constructor
             rows = [QHBoxLayout() for i in range(3)]
             # Pull information from database and assign them to widgets
             name = QPushButton(m['name'])
-            name.clicked.connect(lambda: self.edit(m))
+            name.clicked.connect(lambda checked=True, m=m: self.edit(m))
             cr = QLabel('Challenge Rating: ' + str(m['cr']))
             size = QLabel(sizes.get(doc_id=m["size"])["size"])
             maxHP = QLabel('Max HP: ' + readHP(m['hp']))
-            type = QLabel(types.get(doc_id=m["type"])["type"])
+            type = QLabel(types.get(doc_id=m["type"])["name"])
             ac = QLabel('AC: ' + str(m['ac']))
             # Add widgets to the appropriate layouts
             rows[0].addWidget(name)
@@ -184,10 +255,10 @@ class monsterView(dbView):
             self.data.addWidget(monster)
 
     def edit(self, target):
-        super().edit(target)
-
-    def addNew(self):
-        super().addNew()
+        self.interact = monsterInteract(Interactions.EDIT, target, self)
+        self.interact.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.hide()
+        self.interact.show()
 
 
 """
@@ -203,13 +274,15 @@ class playerView(dbView):
         self.addButton.setText('Add a new Player Character')
 
     def populate(self):
+        # Clear all previous data in the section
+        self.cleanData()
         # Go through all player characters in the database and generate a miniView widget
         for p in players.all():
             # Create a list of HBoxLayouts to send to the miniView constructor
             rows = [QHBoxLayout() for i in range(3)]
             # Pull information from database and assign them to widgets
             name = QPushButton(p["name"])
-            name.clicked.connect(lambda: self.edit(p))
+            name.clicked.connect(lambda checked=True, p=p: self.edit(p))
             level = QLabel("Level: " + str(p["level"]))
             spec = QLabel(species.get(doc_id=p["species"])["name"])
             maxHP = QLabel("Max HP: " + str(p["hp"]))
@@ -227,10 +300,10 @@ class playerView(dbView):
             self.data.addWidget(player)
 
     def edit(self, target):
-        super().edit(target)
-
-    def addNew(self):
-        super().addNew()
+        self.interact = playerInteract(Interactions.EDIT, target, self)
+        self.interact.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.hide()
+        self.interact.show()
 
 
 """
@@ -249,10 +322,10 @@ class partyView(dbView):
         super().populate()
 
     def edit(self, target):
-        super().edit(target)
-
-    def addNew(self):
-        super().addNew()
+        self.interact = partyInteract(Interactions.EDIT, target, self)
+        self.interact.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.hide()
+        self.interact.show()
 
 
 """
@@ -268,13 +341,15 @@ class speciesView(dbView):
         self.addButton.setText('Add a new Species')
 
     def populate(self):
+        # Clear all previous data in the section
+        self.cleanData()
         # Go through all species in the database and generate a miniView widget
         for s in species.all():
             # Create a list of HBoxLayouts to send to the miniView constructor
             rows = [QHBoxLayout() for i in range(2)]
             # Pull information from database and assign them to widgets
             name = QPushButton(s["name"])
-            name.clicked.connect(lambda: self.edit(s))
+            name.clicked.connect(lambda checked=True, s=s: self.edit(s))
             speed = QLabel("Speed: " + s["speed"] + " feet")
             # Multiple sizes are possible, so concatenate all potential options
             sizes = ''
@@ -290,10 +365,10 @@ class speciesView(dbView):
             self.data.addWidget(species_entry)
 
     def edit(self, target):
-        super().edit(target)
-
-    def addNew(self):
-        super().addNew()
+        self.interact = speciesInteract(Interactions.EDIT, target, self)
+        self.interact.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.hide()
+        self.interact.show()
 
 
 """
@@ -309,13 +384,15 @@ class classView(dbView):
         self.addButton.setText('Add a new Class')
 
     def populate(self):
+        # Clear all previous data in the section
+        self.cleanData()
         # Go through all player classes in the database and generate a miniView widget
         for c in classes.all():
             # Create a list of HBoxLayouts to send to the miniView constructor
             rows = [QHBoxLayout() for i in range(2)]
             # Pull information from database and assign them to widgets
             name = QPushButton(c["name"])
-            name.clicked.connect(lambda: self.edit(c))
+            name.clicked.connect(lambda checked=True, c=c: self.edit(c))
             hit = QLabel('Hit Die: ' + c['hit-die'])
             saves = QLabel(c['saving-throws'][0] + ', ' + c['saving-throws'][1])
             # Add widgets to the appropriate layouts
@@ -327,10 +404,10 @@ class classView(dbView):
             self.data.addWidget(pclass)
 
     def edit(self, target):
-        super().edit(target)
-
-    def addNew(self):
-        super().addNew()
+        self.interact = classInteract(Interactions.EDIT, target, self)
+        self.interact.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.hide()
+        self.interact.show()
 
 
 """
@@ -347,13 +424,15 @@ class monsterTypeView(dbView):
 
     def populate(self):
         charLimit = 100
+        # Clear all previous data in the section
+        self.cleanData()
         # Go through all monster types in the database and generate a miniView widget
         for t in types.all():
             # Create a list of HBoxLayouts to send to the miniView constructor
             rows = [QHBoxLayout() for i in range(2)]
             # Pull information from database and assign them to widgets
-            name = QPushButton(t["type"])
-            name.clicked.connect(lambda: self.edit(t))
+            name = QPushButton(t["name"])
+            name.clicked.connect(lambda checked=True, t=t: self.edit(t))
             # If the description of an entry is too long, shorten it and add indicator
             if len(t['description']) > charLimit:
                 desc = QLabel(t['description'][0: charLimit - 3] + "...")
@@ -367,10 +446,10 @@ class monsterTypeView(dbView):
             self.data.addWidget(pclass)
 
     def edit(self, target):
-        super().edit(target)
-
-    def addNew(self):
-        super().addNew()
+        self.interact = monsterTypeInteract(Interactions.EDIT, target, self)
+        self.interact.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.hide()
+        self.interact.show()
 
 
 """
@@ -387,6 +466,8 @@ class conditionView(dbView):
 
     def populate(self):
         charLimit = 100
+        # Clear all previous data in the section
+        self.cleanData()
         # Go through all conditions in the database and generate a miniView for each
         for c in conditions.all():
             # Create a list of HBoxLayouts for name and each sub-effect of the condition
@@ -395,7 +476,7 @@ class conditionView(dbView):
             row = 1
             # Create name button and assign to edit method for that entry
             name = QPushButton(c["name"])
-            name.clicked.connect(lambda: self.edit(c))
+            name.clicked.connect(lambda checked=True, c=c: self.edit(c))
             # Go down the list of effects and add the text to the appropriate layout
             for e in c['effects']:
                 # If an effect description is too long, shorten it and add indicator
@@ -413,7 +494,235 @@ class conditionView(dbView):
             self.data.addWidget(species_entry)
 
     def edit(self, target):
-        super().edit(target)
+        self.interact = conditionInteract(Interactions.EDIT, target, self)
+        self.interact.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.hide()
+        self.interact.show()
 
-    def addNew(self):
-        super().addNew()
+
+"""
+dbInteract: A base template for database interactions like adding, editing, and deleting
+Defines general purpose functionalities like a name field and button interactions.
+"""
+class dbInteract(QMainWindow):
+    def __init__(self, type, target=None, source=None):
+        super().__init__()
+        # Set default size, layout, and background image for the menu
+        self.type = type
+        self.resize(800, 450)
+        layout = QVBoxLayout()
+        background = QLabel()
+        background.setPixmap(QPixmap("images/background_medium.png"))
+        background.setScaledContents(True)
+
+        # Set the target object of the interaction and the data source
+        self.target = target
+        self.source = source
+
+        # Set window title based on object type
+        subject = ""
+        match self.__class__.__name__:
+            case "monsterInteract":
+                subject = "Monster"
+            case "playerInteract":
+                subject = "Player Character"
+            case "partyInteract":
+                subject = "Party"
+            case "speciesInteract":
+                subject = "Species"
+            case "classInteract":
+                subject = "Player Class"
+            case "monsterTypeInteract":
+                subject = "Monster Type"
+            case "conditionInteract":
+                subject = "Condition"
+        match type:
+            case Interactions.ADD:
+                self.setWindowTitle(f"Add New {subject}")
+            case Interactions.EDIT:
+                self.setWindowTitle(f"Edit {subject}")
+
+        # Create a section for the name to be entered
+        self.head = QVBoxLayout()
+        self.name = QLineEdit()
+        self.head.addWidget(self.name)
+        layout.addLayout(self.head)
+
+        # Central area for child classes to redefine
+        self.mid = QVBoxLayout()
+        layout.addLayout(self.mid)
+
+        self.foot = QHBoxLayout()
+        # Properly label the confirmation button depending on the requested action.
+        match type:
+            case Interactions.ADD:
+                cLabel = "Add Entry"
+            case Interactions.EDIT:
+                cLabel = "Save Changes"
+            case _:
+                # Set a default label for undefined types
+                cLabel = "Undefined"
+        self.confirm = QPushButton(cLabel)
+        self.confirm.clicked.connect(self.confirmAction)
+        # If the item is being edited, add a button for deleting the entry.
+        cancel = QPushButton("Cancel")
+        cancel.clicked.connect(self.destruct)
+        self.foot.addWidget(self.confirm)
+        self.foot.addWidget(cancel)
+        if type == Interactions.EDIT:
+            self.name.setText(target["name"])
+            self.delete = QPushButton("Delete")
+            self.delete.clicked.connect(lambda: self.deleteAction(subject, self.target))
+            self.foot.addWidget(self.delete)
+        layout.addLayout(self.foot)
+
+        background.setLayout(layout)
+        self.setCentralWidget(background)
+
+    def confirmAction(self):
+        print(f"CONFIRM {self.type}")
+        return
+
+    def deleteAction(self, type, target):
+        confirmation = deleteDialog(type, target["name"], self)
+        if confirmation.exec():
+            match self.__class__.__name__:
+                case "monsterInteract":
+                    monsters.remove(doc_ids=[self.target.doc_id])
+                case "playerInteract":
+                    players.remove(doc_ids=[self.target.doc_id])
+                case "partyInteract":
+                    parties.remove(doc_ids=[self.target.doc_id])
+                case "speciesInteract":
+                    species.remove(doc_ids=[self.target.doc_id])
+                case "classInteract":
+                    classes.remove(doc_ids=[self.target.doc_id])
+                case "monsterTypeInteract":
+                    types.remove(doc_ids=[self.target.doc_id])
+                case "conditionInteract":
+                    conditions.remove(doc_ids=[self.target.doc_id])
+            self.destruct()
+        
+
+    def destruct(self):
+        self.head.deleteLater()
+        self.name.deleteLater()
+        self.mid.deleteLater()
+        self.confirm.deleteLater()
+        self.foot.deleteLater()
+        self.source.populate()
+        self.source.show()
+        self.close()
+
+
+"""
+monsterInteract: Interact with monsters in the database by either adding new
+    entries or manipulating existing ones.
+Constructor sets additional fields for data entry/deletion
+Defines data entry, edit, and deletion methods.
+"""
+class monsterInteract(dbInteract):
+    def __init__(self, type, target=None, source=None):
+        super().__init__(type, target, source)
+
+    def confirmAction(self):
+        return super().confirmAction()
+
+
+"""
+playerInteract: Interact with player characters in the database by either adding new
+    entries or manipulating existing ones.
+Constructor sets additional fields for data entry/deletion
+Defines data entry, edit, and deletion methods.
+"""
+class playerInteract(dbInteract):
+    def __init__(self, type, target=None, source=None):
+        super().__init__(type, target, source)
+
+    def confirmAction(self):
+        return super().confirmAction()
+
+
+"""
+partyInteract: Interact with parties in the database by either adding new
+    entries or manipulating existing ones.
+Constructor sets additional fields for data entry/deletion
+Defines data entry, edit, and deletion methods.
+"""
+class partyInteract(dbInteract):
+    def __init__(self, type, target=None, source=None):
+        super().__init__(type, target, source)
+
+    def confirmAction(self):
+        return super().confirmAction()
+
+
+"""
+speciesInteract: Interact with species in the database by either adding new
+    entries or manipulating existing ones.
+Constructor sets additional fields for data entry/deletion
+Defines data entry, edit, and deletion methods.
+"""
+class speciesInteract(dbInteract):
+    def __init__(self, type, target=None, source=None):
+        super().__init__(type, target, source)
+
+    def confirmAction(self):
+        return super().confirmAction()
+
+
+"""
+classInteract: Interact with player classes in the database by either adding new
+    entries or manipulating existing ones.
+Constructor sets additional fields for data entry/deletion
+Defines data entry, edit, and deletion methods.
+"""
+class classInteract(dbInteract):
+    def __init__(self, type, target=None, source=None):
+        super().__init__(type, target, source)
+
+    def confirmAction(self):
+        return super().confirmAction()
+
+
+"""
+monsterTypeInteract: Interact with monster types in the database by either adding new
+    entries or manipulating existing ones.
+Constructor sets additional fields for data entry/deletion
+Defines data entry, edit, and deletion methods.
+"""
+class monsterTypeInteract(dbInteract):
+    def __init__(self, type, target=None, source=None):
+        super().__init__(type, target, source)
+
+        self.description = QLineEdit()
+        self.mid.addWidget(self.description)
+
+        if type == Interactions.EDIT:
+            self.description.setText(target["description"])
+
+    def confirmAction(self):
+        match self.type:
+            case Interactions.ADD:
+                types.insert(
+                    {"name": self.name.text(), "description": self.description.text()}
+                )
+            case Interactions.EDIT:
+                types.upsert(Document({"name": self.name.text(), "description": self.description.text()},
+                              doc_id=self.target.doc_id))
+        self.source.populate()
+        self.source.show()
+        self.close()
+
+"""
+conditionsInteract: Interact with conditions in the database by either adding new
+    entries or manipulating existing ones.
+Constructor sets additional fields for data entry/deletion
+Defines data entry, edit, and deletion methods.
+"""
+class conditionInteract(dbInteract):
+    def __init__(self, type, target=None, source=None):
+        super().__init__(type, target, source)
+
+    def confirmAction(self):
+        return super().confirmAction()

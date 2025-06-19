@@ -89,13 +89,14 @@ class MainWindow(QMainWindow):
         lookupMenu.addSeparator()
         lookupMenu.addAction(condAction)
 
+        # Main heading label for the application
         name = QLabel()
         name.setText("Welcome to the Combat Companion!")
         name.setAlignment(Qt.AlignCenter)
         name.setFont(openFont)
 
-        start = QPushButton()
-        start.setText("Build an encounter")
+        start = QPushButton("Build an encounter")
+        start.clicked.connect(self.startEncounter)
 
         layout.addWidget(name)
         layout.addWidget(start)
@@ -107,12 +108,15 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(background)
 
+    def startEncounter(self):
+        print("Encounter Started!")
+
     def routeDatabase(self, dest):
         if dest.isVisible():
             dest.hide()
         else:
             dest.show()
-    
+
     def closeEvent(self, action):
         self.monsterDB.close()
         self.playerDB.close()

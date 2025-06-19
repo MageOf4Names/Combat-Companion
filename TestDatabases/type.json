@@ -1,59 +1,59 @@
 {
     "monster_types": {
         "1": {
-            "type": "Aberration",
+            "name": "Abberation",
             "description": "Utterly alien beings that often have magical or otherworldly abilities."
         },
         "2": {
-            "type": "Beast",
+            "name": "Beast",
             "description": "Non-humanoid creatures that are naturally occuring parts of the fantasy ecology."
         },
         "3": {
-            "type": "Celestial",
+            "name": "Celestial",
             "description": "Creatures native to the upper planes. Often good in nature."
         },
         "4": {
-            "type": "Construct",
+            "name": "Construct",
             "description": "Unnatural beings that were made, not born. Some are programmed with simple instructions, but others are given sentience."
         },
         "5": {
-            "type": "Dragon",
+            "name": "Dragon",
             "description": "Large reptilian creatures of ancient origin and tremendous power."
         },
         "6": {
-            "type": "Elemental",
+            "name": "Elemental",
             "description": "Cretures native to the elemental planes."
         },
         "7": {
-            "type": "Fey",
+            "name": "Fey",
             "description": "Magical creatures closely tied to the forces of nature."
         },
         "8": {
-            "type": "Feind",
+            "name": "Feind",
             "description": "Creatures of wickedness that are often native to the lower planes."
         },
         "9": {
-            "type": "Giant",
+            "name": "Giant",
             "description": "Humanoid in shape but much, much larger."
         },
         "10": {
-            "type": "Humanoid",
+            "name": "Humanoid",
             "description": "Common denizens of a fantasy world. Includes the civilized and savage."
         },
         "11": {
-            "type": "Monstrosity",
+            "name": "Monstrosity",
             "description": "Monsters in the strictest sense. Frightening creatures that are neither ordinary nor natural."
         },
         "12": {
-            "type": "Ooze",
+            "name": "Ooze",
             "description": "Gelatinous creatures that rarely have a fixed shape."
         },
         "13": {
-            "type": "Plant",
+            "name": "Plant",
             "description": "Sentient plants outside of normal flora."
         },
         "14": {
-            "type": "Undead",
+            "name": "Undead",
             "description": "Once-living creatures brought to a state of undeath."
         }
     }

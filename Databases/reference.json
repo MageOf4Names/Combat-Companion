@@ -19,7 +19,7 @@
     },
     "sizes": {
         "1": {
-            "area": "2.5ftX2.5ft",
+            "area": "2.5ft X 2.5ft",
             "size": "Tiny"
         },
         "2": {
@@ -27,7 +27,7 @@
             "size": "Small"
         },
         "3": {
-            "area": "5ft 5ft",
+            "area": "5ft X 5ft",
             "size": "Medium"
         },
         "4": {
