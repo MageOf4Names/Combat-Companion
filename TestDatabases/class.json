@@ -1,104 +1,104 @@
 {
     "player_classes": {
         "1": {
-            "hit-die": "d8",
             "name": "Artificer",
+            "hit-die": "d8",
             "saving-throws": [
                 "Constitution",
                 "Intelligence"
             ]
         },
         "2": {
-            "hit-die": "d12",
             "name": "Barbarian",
+            "hit-die": "d12",
             "saving-throws": [
                 "Strength",
                 "Constitution"
             ]
         },
         "3": {
-            "hit-die": "d8",
             "name": "Bard",
+            "hit-die": "d8",
             "saving-throws": [
                 "Dexterity",
                 "Charisma"
             ]
         },
         "4": {
-            "hit-die": "d8",
             "name": "Cleric",
+            "hit-die": "d8",
             "saving-throws": [
                 "Wisdom",
                 "Charisma"
             ]
         },
         "5": {
-            "hit-die": "d8",
             "name": "Druid",
+            "hit-die": "d8",
             "saving-throws": [
                 "Intelligence",
                 "Wisdom"
             ]
         },
         "6": {
-            "hit-die": "d10",
             "name": "Fighter",
+            "hit-die": "d10",
             "saving-throws": [
                 "Strength",
                 "Constitution"
             ]
         },
         "7": {
-            "hit-die": "d8",
             "name": "Monk",
+            "hit-die": "d8",
             "saving-throws": [
                 "Strength",
                 "Dexterity"
             ]
         },
         "8": {
-            "hit-die": "d10",
             "name": "Paladin",
+            "hit-die": "d10",
             "saving-throws": [
                 "Wisdom",
                 "Charisma"
             ]
         },
         "9": {
-            "hit-die": "d10",
             "name": "Ranger",
+            "hit-die": "d10",
             "saving-throws": [
                 "Strength",
                 "Dexterity"
             ]
         },
         "10": {
-            "hit-die": "d8",
             "name": "Rogue",
+            "hit-die": "d8",
             "saving-throws": [
                 "Dexterity",
                 "Intelligence"
             ]
         },
         "11": {
-            "hit-die": "d6",
             "name": "Sorcerer",
+            "hit-die": "d6",
             "saving-throws": [
                 "Constitution",
                 "Charisma"
             ]
         },
         "12": {
-            "hit-die": "d8",
             "name": "Warlock",
+            "hit-die": "d8",
             "saving-throws": [
                 "Wisdom",
                 "Charisma"
             ]
         },
         "13": {
-            "hit-die": "d6",
             "name": "Wizard",
+            "hit-die": "d6",
             "saving-throws": [
                 "Intelligence",
                 "Wisdom"

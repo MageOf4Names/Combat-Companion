@@ -10,11 +10,7 @@
             "ac": 17,
             "size": 3,
             "alignment": "Chaotic Good",
-            "languages": [
-                "Common",
-                "Elvish",
-                "Thieves Cant"
-            ],
+            "initiative": 5,
             "species": 32,
             "speed": [
                 30,
@@ -59,6 +55,7 @@
                 1,
                 1
             ],
+            "jack_of_trades": 0,
             "senses": {
                 "2": 60
             },

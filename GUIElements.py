@@ -10,121 +10,8 @@ Last updated: 4/11/2025
 TODO:
 """
 
+from GUIHelperClasses import *
 from HelperFunctions import *
-from PySide6.QtCore import QSize, Qt, QTimer
-from PySide6 import QtWidgets
-from PySide6.QtGui import (
-    QAction,
-    QColor,
-    QFont,
-    QIcon,
-    QKeySequence,
-    QPalette,
-    QPixmap
-)
-from PySide6.QtWidgets import (
-    QApplication,
-    QHBoxLayout,
-    QVBoxLayout,
-    QGridLayout,
-    QStackedLayout,
-    QCheckBox,
-    QComboBox,
-    QDialog,
-    QDialogButtonBox,
-    QLabel,
-    QLineEdit,
-    QMainWindow,
-    QMenu,
-    QPushButton,
-    QScrollArea,
-    QSpinBox,
-    QStatusBar,
-    QTabWidget,
-    QToolBar,
-    QWidget
-)
-
-openFont = QFont()
-openFont.setPointSize(50)
-
-headerFont = QFont()
-headerFont.setPointSize(20)
-
-# Basic flat color widget for backgrounds.
-class Color(QWidget):
-    def __init__(self, color):
-        super().__init__()
-        self.setAutoFillBackground(True)
-
-        palette = self.palette()
-        palette.setColor(QPalette.Window, QColor(color))
-        self.setPalette(palette)
-
-
-class deleteDialog(QDialog):
-    def __init__(self, type, name, parent=None):
-        super().__init__(parent=parent)
-
-        self.setWindowTitle("Confirm delete")
-        
-        # Create the button box enumeration from pre-determined options
-        btn = (
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
-        )
-
-        # Initialize the button box and set events
-        self.buttonBox = QDialogButtonBox(btn)
-        self.buttonBox.accepted.connect(self.accept)
-        self.buttonBox.rejected.connect(self.reject)
-
-        # Arrange and set the layout
-        layout = QVBoxLayout()
-        message = QLabel(f"Would you like to delete {type}: {name}?")
-        layout.addWidget(message)
-        layout.addWidget(self.buttonBox)
-        self.setLayout(layout)
-
-
-"""
-miniView: Creates a widget that can be used for scrollable areas
-Constructor takes in an index for later reference, a spacing value for text,
-    and a list of HBoxLayouts for content to be added to the widget.
-"""
-class miniView(QWidget):
-    def __init__(self, index=0, info=None, spacing=27):
-        super().__init__()
-        self.id = index
-
-        # Add all content in the form of horizontal layouts
-        layout = QVBoxLayout()
-        if info is not None:
-            for row in info:
-                if row is None:
-                    continue
-                layout.addLayout(row)
-        # If no layouts were found, add an empty label
-        else:
-            empty = QLabel("Empty")
-            layout.addWidget(empty)
-        # Set height according to spacing parameter and number of rows
-        self.setFixedHeight(len(info) * spacing)
-        self.setLayout(layout)
-
-    def cleanup(self):
-        # Go down each row and remove widgets.
-        while self.layout.data.itemAt(0) != None:
-            row = self.data.itemAt(0).wid
-            # Clear all of the data in each row
-            while row.data.itemAt(0) != None:
-                w = row.data.itemAt(0).wid
-                w.setParent(None)
-                row.removeWidget(w)
-                w.deleteLater()
-            row.setParent(None)
-            self.layout.removeWidget(row)
-            row.deleteLater()
-
 
 """
 dbView: Parent class for all of the database views. Sets a header, scrollable area for content,
@@ -179,21 +66,21 @@ class dbView(QMainWindow):
     def add(self):
         match self.__class__.__name__:
             case "monsterView":
-                self.interact = monsterInteract(Interactions.ADD)
+                self.interact = monsterInteract(Interactions.ADD, source=self)
             case "playerViewView":
-                self.interact = playerInteract(Interactions.ADD)
+                self.interact = playerInteract(Interactions.ADD, source=self)
             case "partyView":
-                self.interact = partyInteract(Interactions.ADD)
+                self.interact = partyInteract(Interactions.ADD, source=self)
             case "speciesView":
-                self.interact = speciesInteract(Interactions.ADD)
+                self.interact = speciesInteract(Interactions.ADD, source=self)
             case "classView":
-                self.interact = classInteract(Interactions.ADD)
+                self.interact = classInteract(Interactions.ADD, source=self)
             case "monsterTypeView":
-                self.interact = monsterTypeInteract(Interactions.ADD)
+                self.interact = monsterTypeInteract(Interactions.ADD, source=self)
             case "conditionView":
-                self.interact = conditionInteract(Interactions.ADD)
+                self.interact = conditionInteract(Interactions.ADD, source=self)
             case _:
-                self.interact = dbInteract(Interactions.ADD)
+                self.interact = dbInteract(Interactions.ADD, source=self)
         self.interact.show()
 
     def edit(self, target):
@@ -208,7 +95,7 @@ class dbView(QMainWindow):
         while (self.data.itemAt(0) != None):
             w = self.data.itemAt(0).wid
             # If this is one of the main tables, clear mini views.
-            if w.__class__.__name__ == miniView:
+            if w.__class__.__name__ == 'miniView':
                 w.cleanup()                        
             # Clean up the attached widget
             w.setParent(None)
@@ -510,7 +397,7 @@ class dbInteract(QMainWindow):
         # Set default size, layout, and background image for the menu
         self.type = type
         self.resize(800, 450)
-        layout = QVBoxLayout()
+        self.layout = QGridLayout()
         background = QLabel()
         background.setPixmap(QPixmap("images/background_medium.png"))
         background.setScaledContents(True)
@@ -543,16 +430,17 @@ class dbInteract(QMainWindow):
                 self.setWindowTitle(f"Edit {subject}")
 
         # Create a section for the name to be entered
-        self.head = QVBoxLayout()
+        self.head = QGridLayout()
         self.name = QLineEdit()
-        self.head.addWidget(self.name)
-        layout.addLayout(self.head)
+        self.name.setPlaceholderText(f"{subject} Name")
+        self.head.addWidget(self.name, 0, 0, 1, -1)
+        self.layout.addLayout(self.head, 1, 1)
 
         # Central area for child classes to redefine
         self.mid = QVBoxLayout()
-        layout.addLayout(self.mid)
+        self.layout.addLayout(self.mid, 2, 1)
 
-        self.foot = QHBoxLayout()
+        self.foot = QGridLayout()
         # Properly label the confirmation button depending on the requested action.
         match type:
             case Interactions.ADD:
@@ -567,16 +455,16 @@ class dbInteract(QMainWindow):
         # If the item is being edited, add a button for deleting the entry.
         cancel = QPushButton("Cancel")
         cancel.clicked.connect(self.destruct)
-        self.foot.addWidget(self.confirm)
-        self.foot.addWidget(cancel)
+        self.foot.addWidget(self.confirm, 1, 1)
+        self.foot.addWidget(cancel, 1, 2)
         if type == Interactions.EDIT:
             self.name.setText(target["name"])
             self.delete = QPushButton("Delete")
             self.delete.clicked.connect(lambda: self.deleteAction(subject, self.target))
-            self.foot.addWidget(self.delete)
-        layout.addLayout(self.foot)
+            self.foot.addWidget(self.delete, 2, 2)
+        self.layout.addLayout(self.foot, 3, 1)
 
-        background.setLayout(layout)
+        background.setLayout(self.layout)
         self.setCentralWidget(background)
 
     def confirmAction(self):
@@ -695,6 +583,8 @@ class monsterTypeInteract(dbInteract):
     def __init__(self, type, target=None, source=None):
         super().__init__(type, target, source)
 
+        descLabel = QLabel("Description:")
+        self.mid.addWidget(descLabel)
         self.description = QLineEdit()
         self.mid.addWidget(self.description)
 
@@ -712,7 +602,7 @@ class monsterTypeInteract(dbInteract):
                               doc_id=self.target.doc_id))
         self.source.populate()
         self.source.show()
-        self.close()
+        self.destruct()
 
 """
 conditionsInteract: Interact with conditions in the database by either adding new
@@ -724,5 +614,53 @@ class conditionInteract(dbInteract):
     def __init__(self, type, target=None, source=None):
         super().__init__(type, target, source)
 
+        self.mid.setParent(None)
+        # Create a widget to house effects
+        self.effectArea = Color("#F1E9D2")
+        self.effectArea.setLayout(self.mid)
+        # Define the scrollable area in the center of the menu for multiple effects.
+        self.scroll = QScrollArea()
+        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setWidget(self.effectArea)
+        self.layout.addWidget(self.scroll, 2, 1)
+
+        effectLabel = QLabel("Condition Effects:")
+        self.mid.addWidget(effectLabel)
+
+        if type == Interactions.EDIT:
+            for e in target["effects"]:
+                effect = QLineEdit(e)
+                self.mid.addWidget(effect)
+        else:
+            self.mid.addWidget(QLineEdit())
+
+        self.additionalEffect = QPushButton("Add New Effect")
+        self.additionalEffect.clicked.connect(self.addEffect)
+        self.foot.addWidget(self.additionalEffect, 2, 1)
+
+    def addEffect(self):
+        self.mid.addWidget(QLineEdit())
+
     def confirmAction(self):
-        return super().confirmAction()
+        effects = []
+        # Adds all non-blank effects to a list for inserting.
+        while self.mid.itemAt(0) != None:
+            w = self.mid.itemAt(0).wid
+            # If this is one of the main tables, clear mini views.
+            if w.__class__.__name__ == "QLineEdit" and w.text() != "":
+                effects.append(w.text())
+            # Clean up the attached widget
+            w.setParent(None)
+            self.mid.removeWidget(w)
+            w.deleteLater()
+
+        match self.type:
+            case Interactions.ADD:
+                conditions.insert({"name": self.name.text(), "effects": effects})
+            case Interactions.EDIT:
+                conditions.upsert(Document({"name": self.name.text(), "effects": effects},
+                              doc_id=self.target.doc_id))
+        self.source.populate()
+        self.source.show()
+        self.destruct()

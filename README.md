@@ -40,7 +40,7 @@ Stage 2: Development
   * Species (IN PROGRESS)
   * Player Classes (IN PROGRESS)
   * Monster Types (DONE)
-  * Conditions (IN PROGRESS)
+  * Conditions (DONE)
 * Build out the UI and link menus together
   * Monsters (IN PROGRESS)
   * Player Characters (IN PROGRESS)
@@ -48,7 +48,7 @@ Stage 2: Development
   * Species (IN PROGRESS)
   * Player Classes (IN PROGRESS)
   * Monster Types (DONE)
-  * Conditions (IN PROGRESS)
+  * Conditions (DONE)
 * Integrate menus with the database
   * Monsters (IN PROGRESS)
   * Player Characters (IN PROGRESS)

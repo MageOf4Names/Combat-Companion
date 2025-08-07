@@ -1,7 +1,7 @@
 {
     "monster_types": {
         "1": {
-            "name": "Abberation",
+            "name": "Aberration",
             "description": "Utterly alien beings that often have magical or otherworldly abilities."
         },
         "2": {
