@@ -557,24 +557,26 @@ class speciesInteract(dbInteract):
         self.sizes = []
 
         # Create a label for the size field and add it to body
-        sizeLabel = QLabel("Creature Size:")
+        sizeLabel = QLabel("Creature size:")
         self.mid.addWidget(sizeLabel)
 
         # Create a button group with all known creature sizes
         sizesGroup = QButtonGroup(self)
         sizesGroup.setExclusive(False)
         sizesGroup.buttonToggled.connect(self.onToggle)
+        # Populate the group with data from the sizes table
         for s in sizes.all():
             checkBox = QCheckBox(s["size"])
             self.mid.addWidget(checkBox)
             sizesGroup.addButton(checkBox, id=s.doc_id)
 
-        # Create a label for the size field and add it to body
-        speedLabel = QLabel("Creature Size:")
+        # Create a field and label for the default walking speed
+        speedLabel = QLabel("Walking speed:")
         self.mid.addWidget(speedLabel)
         self.speed = QSpinBox()
         self.mid.addWidget(self.speed)
 
+        # Add previously saved data to the form if this is an edit
         if type == Interactions.EDIT:
             Size = Query()
             for s in target["size"]:
@@ -610,9 +612,53 @@ Defines data entry, edit, and deletion methods.
 class classInteract(dbInteract):
     def __init__(self, type, target=None, source=None):
         super().__init__(type, target, source)
+        self.saves = []
+
+        # Create a field and label for the hit die
+        hdLabel = QLabel("Hit die:")
+        self.mid.addWidget(hdLabel)
+        self.hd = QComboBox()
+        self.hd.addItems(["d4", "d6", "d8", "d10", "d12"])
+        self.mid.addWidget(self.hd)
+
+        # Create a label for the saving throws
+        savesLabel = QLabel("Saving throw proficiencies:")
+        self.mid.addWidget(savesLabel)
+
+        # Create a button group with all stats for saving throws
+        savesGroup = QButtonGroup(self)
+        savesGroup.setExclusive(False)
+        savesGroup.buttonToggled.connect(self.onToggle)
+        for s in statDict.keys():
+            checkBox = QCheckBox(s)
+            self.mid.addWidget(checkBox)
+            savesGroup.addButton(checkBox, statDict[s])
+
+        # Add previously saved data if this is an edit
+        if type == Interactions.EDIT:
+            for s in target["saving-throws"]:
+                s_id = statDict[s]
+                if savesGroup.button(s_id):
+                    savesGroup.button(s_id).setChecked(True)
+            self.hd.setCurrentText(target["hit-die"])
+
+    def onToggle(self, button, checked):
+        # Add to the saves list if checked, remove if unchecked.
+        if checked:
+            self.saves.append(button.text())
+        else:
+            self.saves.remove(button.text())
 
     def confirmAction(self):
-        return super().confirmAction()
+        match self.type:
+            case Interactions.ADD:
+                classes.insert({"name": self.name.text(), "hit-die": self.hd.currentText(), "saving-throws": self.saves})
+            case Interactions.EDIT:
+                classes.upsert(Document({"name": self.name.text(), "hit-die": self.hd.currentText(), "saving-throws": self.saves},
+                              doc_id=self.target.doc_id))
+        self.source.populate()
+        self.source.show()
+        self.destruct()
 
 
 """

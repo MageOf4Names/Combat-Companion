@@ -38,7 +38,7 @@ Stage 2: Development
   * Player Characters (IN PROGRESS)
   * Parties (IN PROGRESS)
   * Species (DONE)
-  * Player Classes (IN PROGRESS)
+  * Player Classes (DONE)
   * Monster Types (DONE)
   * Conditions (DONE)
 * Build out the UI and link menus together
@@ -46,7 +46,7 @@ Stage 2: Development
   * Player Characters (IN PROGRESS)
   * Parties (IN PROGRESS)
   * Species (DONE)
-  * Player Classes (IN PROGRESS)
+  * Player Classes (DONE)
   * Monster Types (DONE)
   * Conditions (DONE)
 * Integrate menus with the database
@@ -54,7 +54,7 @@ Stage 2: Development
   * Player Characters (IN PROGRESS)
   * Parties (IN PROGRESS)
   * Species (DONE)
-  * Player Classes (IN PROGRESS)
+  * Player Classes (DONE)
   * Monster Types (DONE)
   * Conditions (DONE)
 * Test all data interactions using the UI
@@ -62,7 +62,7 @@ Stage 2: Development
   * Player Characters (IN PROGRESS)
   * Parties (IN PROGRESS)
   * Species (DONE)
-  * Player Classes (IN PROGRESS)
+  * Player Classes (DONE)
   * Monster Types (DONE)
   * Conditions (DONE)
 
