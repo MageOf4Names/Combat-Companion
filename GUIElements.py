@@ -554,9 +554,51 @@ Defines data entry, edit, and deletion methods.
 class speciesInteract(dbInteract):
     def __init__(self, type, target=None, source=None):
         super().__init__(type, target, source)
+        self.sizes = []
+
+        # Create a label for the size field and add it to body
+        sizeLabel = QLabel("Creature Size:")
+        self.mid.addWidget(sizeLabel)
+
+        # Create a button group with all known creature sizes
+        sizesGroup = QButtonGroup(self)
+        sizesGroup.setExclusive(False)
+        sizesGroup.buttonToggled.connect(self.onToggle)
+        for s in sizes.all():
+            checkBox = QCheckBox(s["size"])
+            self.mid.addWidget(checkBox)
+            sizesGroup.addButton(checkBox, id=s.doc_id)
+
+        # Create a label for the size field and add it to body
+        speedLabel = QLabel("Creature Size:")
+        self.mid.addWidget(speedLabel)
+        self.speed = QSpinBox()
+        self.mid.addWidget(self.speed)
+
+        if type == Interactions.EDIT:
+            Size = Query()
+            for s in target["size"]:
+                s_id = sizes.search(Size.size == s)[0].doc_id
+                if sizesGroup.button(s_id):
+                    sizesGroup.button(s_id).setChecked(True)
+            self.speed.setValue(int(target["speed"]))
+
+    def onToggle(self, button, checked):
+        if checked:
+            self.sizes.append(button.text())
+        else:
+            self.sizes.remove(button.text())
 
     def confirmAction(self):
-        return super().confirmAction()
+        match self.type:
+            case Interactions.ADD:
+                species.insert({"name": self.name.text(), "size": self.sizes, "speed": self.speed.text()})
+            case Interactions.EDIT:
+                species.upsert(Document({"name": self.name.text(), "size": self.sizes, "speed": self.speed.text()},
+                              doc_id=self.target.doc_id))
+        self.source.populate()
+        self.source.show()
+        self.destruct()
 
 
 """

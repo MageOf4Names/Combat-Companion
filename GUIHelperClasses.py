@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QGridLayout,
     QStackedLayout,
+    QButtonGroup,
     QCheckBox,
     QComboBox,
     QDialog,

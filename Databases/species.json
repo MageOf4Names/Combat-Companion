@@ -13,7 +13,7 @@
         "3": {
             "name": "Dragonborn",
             "size": ["Medium"],
-            "speed": "30ft"
+            "speed": "30"
         },
         "4": {
             "name": "Dwarf",
