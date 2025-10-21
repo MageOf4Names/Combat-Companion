@@ -15,8 +15,8 @@
             "speed": [
                 30,
                 0,
-                0,
                 20,
+                0,
                 0
             ],
             "ability_scores": [
@@ -55,10 +55,13 @@
                 1,
                 1
             ],
-            "jack_of_trades": 0,
-            "senses": {
-                "2": 60
-            },
+            "jack_of_trades": false,
+            "senses": [
+                0,
+                60,
+                0,
+                0
+            ],
             "damage_types": [
                 0,
                 0,

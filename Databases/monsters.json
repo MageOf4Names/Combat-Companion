@@ -8,7 +8,7 @@
             "ac": 12,
             "size": 3,
             "alignment": "True Neutral",
-            "languages": [],
+            "initiative": 1,
             "type": 11,
             "speed": [
                 15,
@@ -37,7 +37,7 @@
                 0,
                 0,
                 0,
-                5,
+                1,
                 0,
                 0,
                 0,
@@ -53,9 +53,12 @@
                 0,
                 0
             ],
-            "senses": {
-                "2": 60
-            },
+            "senses": [
+                0,
+                60,
+                0,
+                0
+            ],
             "damage_types": [
                 0,
                 0,
@@ -65,34 +68,32 @@
                 0,
                 0,
                 0,
-                -1,
+                -2,
                 0,
                 0,
                 0,
                 0
             ],
             "actions": {
-                "Pseudopod": [
-                    "Melee",
-                    5,
-                    5,
-                    "sinlge target",
-                    [
+                "Pseudopod": {
+                    "range": 5,
+                    "hit_bonus": 5,
+                    "targets": "Sinlge Target",
+                    "damage": [
                         "(1d8 + 3)bludgeoning"
                     ],
-                    "If the mimic is in object form, the target is subjected to its Adhesive trait."
-                ],
-                "Bite": [
-                    "Melee",
-                    5,
-                    5,
-                    "single target",
-                    [
+                    "extra": "If the mimic is in object form, the target is subjected to its Adhesive trait."
+                },
+                "Bite": {
+                    "range": 5,
+                    "hit_bonus": 5,
+                    "targets": "Single Target",
+                    "damage": [
                         "(1d8 + 3)piercing",
                         "(1d8)acid"
                     ],
-                    ""
-                ]
+                    "extra": ""
+                }
             },
             "special_traits": {
                 "Shapechanger": "The mimic can use its action to polymorph into an object or back into its true, amorphous form. Its statistics are the same in each form. Any equipment it is wearing or carrying isn't transformed. It reverts to its true form if it dies.",

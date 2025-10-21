@@ -67,7 +67,7 @@ class dbView(QMainWindow):
         match self.__class__.__name__:
             case "monsterView":
                 self.interact = monsterInteract(Interactions.ADD, source=self)
-            case "playerViewView":
+            case "playerView":
                 self.interact = playerInteract(Interactions.ADD, source=self)
             case "partyView":
                 self.interact = partyInteract(Interactions.ADD, source=self)
@@ -81,6 +81,8 @@ class dbView(QMainWindow):
                 self.interact = conditionInteract(Interactions.ADD, source=self)
             case _:
                 self.interact = dbInteract(Interactions.ADD, source=self)
+        self.interact.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.hide()
         self.interact.show()
 
     def edit(self, target):
@@ -173,7 +175,10 @@ class playerView(dbView):
             level = QLabel("Level: " + str(p["level"]))
             spec = QLabel(species.get(doc_id=p["species"])["name"])
             maxHP = QLabel("Max HP: " + str(p["hp"]))
-            pclass = QLabel(classes.get(doc_id=int([*p["class"]][0]))["name"])
+            classStr = ""
+            for k, v in p["class"].items():
+                classStr += f"{k} {v},"
+            pclass = QLabel(classStr[0: -1])
             ac = QLabel("AC: " + str(p["ac"]))
             # Add widgets to the appropriate layouts
             rows[0].addWidget(name)
@@ -433,12 +438,12 @@ class dbInteract(QMainWindow):
         self.head = QGridLayout()
         self.name = QLineEdit()
         self.name.setPlaceholderText(f"{subject} Name")
-        self.head.addWidget(self.name, 0, 0, 1, -1)
-        self.layout.addLayout(self.head, 1, 1)
+        self.head.addWidget(self.name, 0, 0, 2, 1)
+        self.layout.addLayout(self.head, 0, 0)
 
         # Central area for child classes to redefine
         self.mid = QVBoxLayout()
-        self.layout.addLayout(self.mid, 2, 1)
+        self.layout.addLayout(self.mid, 1, 0)
 
         self.foot = QGridLayout()
         # Properly label the confirmation button depending on the requested action.
@@ -455,14 +460,14 @@ class dbInteract(QMainWindow):
         # If the item is being edited, add a button for deleting the entry.
         cancel = QPushButton("Cancel")
         cancel.clicked.connect(self.destruct)
-        self.foot.addWidget(self.confirm, 1, 1)
-        self.foot.addWidget(cancel, 1, 2)
+        self.foot.addWidget(self.confirm, 0, 0)
+        self.foot.addWidget(cancel, 0, 1)
         if type == Interactions.EDIT:
             self.name.setText(target["name"])
             self.delete = QPushButton("Delete")
             self.delete.clicked.connect(lambda: self.deleteAction(subject, self.target))
-            self.foot.addWidget(self.delete, 2, 2)
-        self.layout.addLayout(self.foot, 3, 1)
+            self.foot.addWidget(self.delete, 1, 1)
+        self.layout.addLayout(self.foot, 2, 0)
 
         background.setLayout(self.layout)
         self.setCentralWidget(background)
@@ -490,14 +495,10 @@ class dbInteract(QMainWindow):
                 case "conditionInteract":
                     conditions.remove(doc_ids=[self.target.doc_id])
             self.destruct()
-        
 
     def destruct(self):
-        self.head.deleteLater()
-        self.name.deleteLater()
-        self.mid.deleteLater()
-        self.confirm.deleteLater()
-        self.foot.deleteLater()
+        self.setParent(None)
+        cleanWidget(self)
         self.source.populate()
         self.source.show()
         self.close()
@@ -512,9 +513,405 @@ Defines data entry, edit, and deletion methods.
 class monsterInteract(dbInteract):
     def __init__(self, type, target=None, source=None):
         super().__init__(type, target, source)
+        self.resize(1400, 1100)
+        self.saves = [0 for i in range(6)]
+
+        # Add hp, ac, alignment, and initiative to the head layout
+        self.maxHP = QPushButton("Enter HP")
+        self.maxHP.clicked.connect(self.hitpointPopup)
+        self.ac = QSpinBox(value=10)
+        self.align = QComboBox()
+        self.align.addItems(alignments)
+        self.init = QSpinBox(value=0)
+        self.head.addWidget(QLabel("Max HP"), 0, 2)
+        self.head.addWidget(self.maxHP, 0, 3)
+        self.head.addWidget(QLabel("Armor Class"), 0, 4)
+        self.head.addWidget(self.ac, 0, 5)
+        self.head.addWidget(QLabel("Alignment"), 1, 2)
+        self.head.addWidget(self.align, 1, 3)
+        self.head.addWidget(QLabel("Initiative"), 1, 4)
+        self.head.addWidget(self.init, 1, 5)
+
+        # Define and fill the layout with creature type, size, cr, and xp
+        self.typeLayout = QHBoxLayout()
+        self.monType = QComboBox()\
+        # Pull data from reference tables to fill out monster types
+        for t in types.all():
+            self.monType.addItem(t["name"])
+        self.monSize = QComboBox()
+        # Pull data from reference tables to fill out monster sizes
+        for s in sizes.all():
+            self.monSize.addItem(s["size"])
+        self.cr = QDoubleSpinBox(decimals=2, singleStep=0.25)
+        self.xp = QSpinBox(value=0)
+        self.typeLayout.addWidget(QLabel("Monster Type: "))
+        self.typeLayout.addWidget(self.monType)
+        self.typeLayout.addWidget(QLabel("Size: "))
+        self.typeLayout.addWidget(self.monSize)
+        self.typeLayout.addWidget(QLabel("CR: "))
+        self.typeLayout.addWidget(self.cr)
+        self.typeLayout.addWidget(QLabel("XP Value: "))
+        self.typeLayout.addWidget(self.xp)
+        # Add the layout to the main mid layout
+        self.mid.addLayout(self.typeLayout)
+
+        # Define and fill the layout with stats and saving throw proficiencies
+        self.statLayout = QGridLayout()
+        self.statInputs = []
+        count = 0
+        for stat in statDict.keys():
+            self.statLayout.addWidget(QLabel(stat + ": "), 0, 2 * count)
+            self.statInputs.append(QSpinBox(value=10))
+            self.statLayout.addWidget(self.statInputs[count], 0, 2 * count + 1)
+            count += 1
+        # Create a button group with all stats for saving throws
+        savesGroup = QButtonGroup(self)
+        savesGroup.setExclusive(False)
+        savesGroup.buttonToggled.connect(self.onToggle)
+        count = 0
+        for s in statDict.keys():
+            checkBox = QCheckBox(s + " Save")
+            self.statLayout.addWidget(checkBox, 1, 2 * count, 2, 1)
+            savesGroup.addButton(checkBox, statDict[s])
+            count += 1
+        # Add the layout to the main mid layout
+        self.mid.addLayout(self.statLayout)
+
+        # Define and fill the layout containing skills and legendary checks
+        self.skillLayout = QGridLayout()
+        # Create a dropdown box for every skill and add it to the layout
+        count = 0
+        self.skillInputs = []
+        for sk in skills.all():
+            self.skillInputs.append(QComboBox())
+            self.skillInputs[count].addItems(profDict.keys())
+            self.skillLayout.addWidget(QLabel(sk["skill"]), count, 0)
+            self.skillLayout.addWidget(self.skillInputs[count], count, 1)
+            count += 1
+        # Create and add entries for legendary tags and legendary resistances
+        self.legend = QRadioButton("Legendary")
+        self.legend_res = QSpinBox()
+        self.skillLayout.addWidget(self.legend, count, 0, 1, 2)
+        self.skillLayout.addWidget(QLabel("Legendary Resistances: "), count + 1, 0)
+        self.skillLayout.addWidget(self.legend_res, count + 1, 1)
+
+        # Define and fill the layout containing resistances and actions
+        self.actionLayout = QVBoxLayout()
+
+        self.actionLayout.addWidget(QLabel("Monster Actions"))
+        # Define a list to track all actions
+        self.actionList = [actionView()]
+        # Create a backdrop for the scrollable area
+        self.actionBackdrop = QVBoxLayout()
+        if type != Interactions.EDIT:
+            self.actionList.append(actionView())
+            self.actionBackdrop.addWidget(self.actionList[0])
+        self.actionEffectArea = Color("#F1E9D2")
+        self.actionEffectArea.setLayout(self.actionBackdrop)
+        # Define the scrollable area for monster actions
+        self.actionArea = QScrollArea()
+        self.actionArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.actionArea.setWidgetResizable(True)
+        self.actionArea.setWidget(self.actionEffectArea)
+        self.actionLayout.addWidget(self.actionArea)
+        # Make a button to add additional elements
+        addAction = QPushButton("Add Action")
+        addAction.clicked.connect(lambda: self.addElement(ActionType.ACTION))
+        self.actionLayout.addWidget(addAction)
+
+        self.actionLayout.addWidget(QLabel("Special Traits"))
+        # Define a list to track all special traits
+        self.traitList = []
+        # Create a backdrop for the scrollable area
+        self.traitBackdrop = QVBoxLayout()
+        self.traitEffectArea = Color("#F1E9D2")
+        self.traitEffectArea.setLayout(self.traitBackdrop)
+        # Define the scrollable area for monster actions
+        self.traitArea = QScrollArea()
+        self.traitArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.traitArea.setWidgetResizable(True)
+        self.traitArea.setWidget(self.traitEffectArea)
+        self.actionLayout.addWidget(self.traitArea)
+        # Make a button to add additional elements
+        addTrait = QPushButton("Add Trait")
+        addTrait.clicked.connect(lambda: self.addElement(ActionType.TRAIT))
+        self.actionLayout.addWidget(addTrait)
+
+        self.actionLayout.addWidget(QLabel("Legendary Actions"))
+        # Define a list to track all legendary actions
+        self.lActionList = []
+        # Create a backdrop for the scrollable area
+        self.legendBackdrop = QVBoxLayout()
+        self.legendEffectArea = Color("#F1E9D2")
+        self.legendEffectArea.setLayout(self.legendBackdrop)
+        # Define the scrollable area for monster actions
+        self.legActionArea = QScrollArea()
+        self.legActionArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.legActionArea.setWidgetResizable(True)
+        self.legActionArea.setWidget(self.legendEffectArea)
+        self.actionLayout.addWidget(self.legActionArea)
+        # Make a button to add additional elements
+        addLegAction = QPushButton("Add Legendary Action")
+        addLegAction.clicked.connect(lambda: self.addElement(ActionType.LEG_ACTION))
+        self.actionLayout.addWidget(addLegAction)
+
+        self.actionLayout.addWidget(QLabel("Lair Actions"))
+        # Define a list to track all lair actions
+        self.lairActions = []
+        # Create a backdrop for the scrollable area
+        self.lairBackdrop = QVBoxLayout()
+        self.lairEffectArea = Color("#F1E9D2")
+        self.lairEffectArea.setLayout(self.lairBackdrop)
+        # Define the scrollable area for monster actions
+        self.lairActionArea = QScrollArea()
+        self.lairActionArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.lairActionArea.setWidgetResizable(True)
+        self.lairActionArea.setWidget(self.lairEffectArea)
+        self.actionLayout.addWidget(self.lairActionArea)
+        # Make a button to add additional elements
+        addLairAction = QPushButton("Add Lair Action")
+        addLairAction.clicked.connect(lambda: self.addElement(ActionType.LAIR_ACTION))
+        self.actionLayout.addWidget(addLairAction)
+
+        # Create an area for notes
+        self.notes = QTextEdit()
+        self.notes.setMaximumHeight(40)
+        self.actionLayout.addWidget(QLabel("Additional Notes:"))
+        self.actionLayout.addWidget(self.notes)
+
+        # Define and fill the layout containing speeds and sesnses
+        self.speedLayout = QGridLayout()
+
+        self.speedLayout.addWidget(QLabel("Movement Speeds"), 0, 0, 1, 2)
+        countSp = 0
+        self.speedInputs = []
+        for sp in movements:
+            self.speedInputs.append(QSpinBox(value=30 if countSp == 0 else 0))
+            self.speedLayout.addWidget(QLabel(sp), countSp + 1, 0)
+            self.speedLayout.addWidget(self.speedInputs[countSp], countSp + 1, 1)
+            countSp += 1
+
+        self.speedLayout.addWidget(QLabel("Senses"), countSp + 2, 0, 1, 2)
+        countSe = 0
+        self.senseInputs = []
+        for se in senses.all():
+            self.senseInputs.append(QSpinBox())
+            self.speedLayout.addWidget(QLabel(se["sense"]), countSe + countSp + 3, 0)
+            self.speedLayout.addWidget(self.senseInputs[countSe], countSe + countSp + 3, 1)
+            countSe += 1
+
+        self.speedLayout.addWidget(QLabel("Weaknesses/Resistances"), countSp + countSe + 3, 0, 1, 2)
+        countDa = 0
+        self.damageInputs = []
+        for dmg in damageType:
+            self.damageInputs.append(QComboBox())
+            self.damageInputs[countDa].addItems(damageDict.keys())
+            self.speedLayout.addWidget(QLabel(dmg), countSp + countSe + countDa + 4, 0)
+            self.speedLayout.addWidget(self.damageInputs[countDa], countSp + countSe + countDa + 4, 1)
+            countDa += 1
+
+        # Create a shell for the body elements like skills and actions to exist in
+        self.bodyLayout = QGridLayout()
+        # Add the skill, action, and speed layouts and give them each space
+        self.bodyLayout.addLayout(self.skillLayout, 0, 0, -1, 2)
+        self.bodyLayout.addLayout(self.actionLayout, 0, 3, -1, 4)
+        self.bodyLayout.addLayout(self.speedLayout, 0, 7, -1, 2)
+        # Add body layout to the form
+        self.mid.addLayout(self.bodyLayout)
+
+        # Add previously saved data if this is an edit
+        if type == Interactions.EDIT:
+            # Handle all numerical or text values
+            self.cr.setValue(target["cr"])
+            self.xp.setValue(target["xp"])
+            self.maxHP.setText(target["hp"])
+            self.ac.setValue(target["ac"])
+            self.init.setValue(target["initiative"])
+            self.notes.setPlainText(target["notes"])
+            # Handle legendary markers
+            if target["legendary"]:
+                self.legend.setChecked(True)
+                self.legend_res.setValue(target["legendary_resistances"])
+            # Prefill dropdown menus that aren't in groups
+            self.monSize.setCurrentIndex(target["size"] - 1)
+            self.monType.setCurrentIndex(target["type"] - 1)
+            self.align.setCurrentText(target["alignment"])
+            # Prefill stat list and saves
+            for st in range(6):
+                self.statInputs[st].setValue(target["ability_scores"][st])
+                if target["saves"][st] == 1:
+                    savesGroup.button(st).setChecked(True)
+                    self.saves[st] = 1
+            # Prefill all other grouped categories
+            # Speeds
+            for i in range(len(target["speed"])):
+                self.speedInputs[i].setValue(target["speed"][i])
+            # Senses
+            for i in range(len(target["senses"])):
+                self.senseInputs[i].setValue(target["senses"][i])
+            # Skills
+            for i in range(len(target["skills"])):
+                profInv = {val: key for key, val in profDict.items()}
+                self.skillInputs[i].setCurrentText(profInv[target["skills"][i]])
+            # Damage Types
+            for i in range(len(target["damage_types"])):
+                damageInv = {val: key for key, val in damageDict.items()}
+                self.damageInputs[i].setCurrentText(damageInv[target["damage_types"][i]])
+            # Preload actions and traits
+            # Actions
+            for name, data in target["actions"].items():
+                self.addElement(ActionType.ACTION, name, data)
+            # Traits
+            for name, data in target["special_traits"].items():
+                self.addElement(ActionType.TRAIT, name, data)
+            # Legendary Actions
+            for name, data in target["legendary_actions"].items():
+                self.addElement(ActionType.LEG_ACTION, name, data)
+            # Lair Actions
+            for name, data in target["lair_actions"].items():
+                self.addElement(ActionType.LAIR_ACTION, name, data)
+
+    def onToggle(self, button, checked):
+        # Add to the saves list if checked, remove if unchecked.
+        if checked:
+            self.saves[statDict[button.text()[0: -5]]] = 1
+        else:
+            self.saves[statDict[button.text()[0: -5]]] = 0
+
+    def addElement(self, type, name=None, data=None):
+        match type:
+            case ActionType.ACTION:
+                element = actionView(name=name, preload=data)
+                self.actionList.append(element)
+                self.actionBackdrop.addWidget(element)
+            case ActionType.TRAIT:
+                element = traitView(name=name, data=data)
+                self.traitList.append(element)
+                self.traitBackdrop.addWidget(element)
+            case ActionType.LEG_ACTION:
+                element = traitView(name=name, data=data)
+                self.lActionList.append(element)
+                self.legendBackdrop.addWidget(element)
+            case ActionType.LAIR_ACTION:
+                element = traitView(name=name, data=data)
+                self.lairActions.append(element)
+                self.lairBackdrop.addWidget(element)
+
+    def hitpointPopup(self):
+        hitpointDialog(self).exec()
 
     def confirmAction(self):
-        return super().confirmAction()
+        speeds = [0 for i in range(5)]
+        stats = [0 for i in range(6)]
+        skills = [0 for i in range(18)]
+        weakness = [0 for i in range(13)]
+        senses = [0 for i in range(4)]
+        action = {}
+        traits = {}
+        legend_action = {}
+        lair_action = {}
+
+        # Condense all stat spinboxes down into a single array.
+        for i in range(len(self.statInputs)):
+            stats[i] = self.statInputs[i].value()
+        # Condense all skill inputs into a single array.
+        for i in range(len(self.skillInputs)):
+            skills[i] = profDict[self.skillInputs[i].currentText()]
+        # Condense all damage type inputs into a single array.
+        for i in range(len(self.damageInputs)):
+            weakness[i] = damageDict[self.damageInputs[i].currentText()]
+        # Condense all speed spinboxes down into a single array.
+        for i in range(len(self.speedInputs)):
+            speeds[i] = self.speedInputs[i].value()
+        # Condense all sense spinboxes down into a single array.
+        for i in range(len(self.senseInputs)):
+            senses[i] = self.senseInputs[i].value()
+
+        # Get the data from all actions listed and add it to the actions dictionary
+        for act in self.actionList:
+            name, data = act.toDict()
+            if name != "":
+                action[name] = data
+
+        # Get the data from all special traits listed and add it to the actions dictionary
+        for tr in self.traitList:
+            name, data = tr.toDict()
+            if name != "":
+                traits[name] = data
+
+        # Get the data from all legendary actions listed and add it to the actions dictionary
+        for legend in self.lActionList:
+            name, data = legend.toDict()
+            if name != "":
+                legend_action[name] = data
+
+        # Get the data from all lair actions listed and add it to the actions dictionary
+        for lair in self.lairActions:
+            name, data = lair.toDict()
+            if name != "":
+                lair_action[name] = data
+
+        match self.type:
+            case Interactions.ADD:
+                monsters.insert(
+                    {
+                        "name": self.name.text(),
+                        "cr": self.cr.value(),
+                        "xp": self.xp.value(),
+                        "hp": self.maxHP.text(),
+                        "ac": self.ac.value(),
+                        "size": self.monSize.currentIndex() + 1,
+                        "alignment": self.align.currentText(),
+                        "initiative": self.init.value(),
+                        "type": self.monType.currentIndex() + 1,
+                        "speed": speeds,
+                        "ability_scores": stats,
+                        "saves": self.saves,
+                        "skills": skills,
+                        "senses": senses,
+                        "damage_types": weakness,
+                        "actions": action,
+                        "special_traits": traits,
+                        "legendary": True if self.legend.isChecked() else False,
+                        "legendary_actions": legend_action,
+                        "legendary_resistances": self.legend_res.value(),
+                        "lair_actions": lair_action,
+                        "notes": self.notes.toPlainText(),
+                    }
+                )
+            case Interactions.EDIT:
+                monsters.upsert(
+                    Document(
+                        {
+                            "name": self.name.text(),
+                            "cr": self.cr.value(),
+                            "xp": self.xp.value(),
+                            "hp": self.maxHP.text(),
+                            "ac": self.ac.value(),
+                            "size": self.monSize.currentIndex() + 1,
+                            "alignment": self.align.currentText(),
+                            "initiative": self.init.value(),
+                            "type": self.monType.currentIndex() + 1,
+                            "speed": speeds,
+                            "ability_scores": stats,
+                            "saves": self.saves,
+                            "skills": skills,
+                            "senses": senses,
+                            "damage_types": weakness,
+                            "actions": action,
+                            "special_traits": traits,
+                            "legendary": True if self.legend.isChecked() else False,
+                            "legendary_actions": legend_action,
+                            "legendary_resistances": self.legend_res.value(),
+                            "lair_actions": lair_action,
+                            "notes": self.notes.toPlainText(),
+                        },
+                        doc_id=self.target.doc_id,
+                    )
+                )
+        self.source.populate()
+        self.source.show()
+        self.destruct()
 
 
 """
@@ -526,9 +923,264 @@ Defines data entry, edit, and deletion methods.
 class playerInteract(dbInteract):
     def __init__(self, type, target=None, source=None):
         super().__init__(type, target, source)
+        self.resize(1400, 1100)
+        self.saves = [0 for i in range(6)]
+
+        # Add hp, ac, alignment, and initiative to the head layout
+        self.maxHP = QSpinBox()
+        self.ac = QSpinBox(value=10)
+        self.align = QComboBox()
+        self.align.addItems(alignments)
+        self.init = QSpinBox(value=0)
+        self.head.addWidget(QLabel("Max HP"), 0, 2)
+        self.head.addWidget(self.maxHP, 0, 3)
+        self.head.addWidget(QLabel("Armor Class"), 0, 4)
+        self.head.addWidget(self.ac, 0, 5)
+        self.head.addWidget(QLabel("Alignment"), 1, 2)
+        self.head.addWidget(self.align, 1, 3)
+        self.head.addWidget(QLabel("Initiative"), 1, 4)
+        self.head.addWidget(self.init, 1, 5)
+
+        # Define and fill the layout with creature type, sepcies, size, and level
+        self.typeLayout = QHBoxLayout()
+        self.charClass = QPushButton("Enter Class")
+        self.charClass.clicked.connect(self.classPopup)
+        self.charSize = QComboBox()
+        self.charSpec = QComboBox()
+        self.classDict = {}
+        # Pull data from reference tables to fill out pc sizes
+        for s in sizes.all():
+            self.charSize.addItem(s["size"])
+        # Pull data from reference tables to fill out pc species
+        for s in species.all():
+            self.charSpec.addItem(s["name"])
+        self.level = QSpinBox(value=0)
+        self.typeLayout.addWidget(QLabel("Class(es): "))
+        self.typeLayout.addWidget(self.charClass)
+        self.typeLayout.addWidget(QLabel("Species: "))
+        self.typeLayout.addWidget(self.charSpec)
+        self.typeLayout.addWidget(QLabel("Size: "))
+        self.typeLayout.addWidget(self.charSize)
+        self.typeLayout.addWidget(QLabel("Total Level: "))
+        self.typeLayout.addWidget(self.level)
+        # Add the layout to the main mid layout
+        self.mid.addLayout(self.typeLayout)
+
+        # Define and fill the layout with stats and saving throw proficiencies
+        self.statLayout = QGridLayout()
+        self.inPary = []
+        self.statInputs = []
+        count = 0
+        for stat in statDict.keys():
+            self.statLayout.addWidget(QLabel(stat + ": "), 0, 2 * count)
+            self.statInputs.append(QSpinBox(value=10))
+            self.statLayout.addWidget(self.statInputs[count], 0, 2 * count + 1)
+            count += 1
+        # Create a button group with all stats for saving throws
+        savesGroup = QButtonGroup(self)
+        savesGroup.setExclusive(False)
+        savesGroup.buttonToggled.connect(self.onToggle)
+        count = 0
+        for s in statDict.keys():
+            checkBox = QCheckBox(s + " Save")
+            self.statLayout.addWidget(checkBox, 1, 2 * count, 2, 1)
+            savesGroup.addButton(checkBox, statDict[s])
+            count += 1
+        # Add the layout to the main mid layout
+        self.mid.addLayout(self.statLayout)
+
+        # Define and fill the layout containing skills and legendary checks
+        self.skillLayout = QGridLayout()
+        # Create a dropdown box for every skill and add it to the layout
+        count = 0
+        self.skillInputs = []
+        for sk in skills.all():
+            self.skillInputs.append(QComboBox())
+            self.skillInputs[count].addItems(profDict.keys())
+            self.skillLayout.addWidget(QLabel(sk["skill"]), count, 0)
+            self.skillLayout.addWidget(self.skillInputs[count], count, 1)
+            count += 1
+        # Create and add entries for legendary tags and legendary resistances
+        self.jackOfTrades = QRadioButton("Jack of all trades")
+        self.skillLayout.addWidget(self.jackOfTrades, count, 0, 1, 2)
+
+        # Define and fill the layout containing resistances and actions
+        self.infoLayout = QGridLayout()
+
+        self.infoLayout.addWidget(QLabel("Weaknesses/Resistances"), 0, 0, 1, -1)
+        countDa = 0
+        self.damageInputs = []
+        for dmg in damageType:
+            self.damageInputs.append(QComboBox())
+            self.damageInputs[countDa].addItems(damageDict.keys())
+            self.infoLayout.addWidget(QLabel(dmg), countDa + 1, 0)
+            self.infoLayout.addWidget(self.damageInputs[countDa], countDa + 1, 1)
+            countDa += 1
+
+        # Create an area for notes
+        self.notes = QTextEdit()
+        self.notes.setMaximumHeight(40)
+        self.infoLayout.addWidget(QLabel("Additional Notes:"), countDa + 2, 0)
+        self.infoLayout.addWidget(self.notes, countDa + 3, 0, 1, -1)
+
+        # Define and fill the layout containing speeds and sesnses
+        self.speedLayout = QGridLayout()
+
+        self.speedLayout.addWidget(QLabel("Movement Speeds"), 0, 0, 1, 2)
+        countSp = 0
+        self.speedInputs = []
+        for sp in movements:
+            self.speedInputs.append(QSpinBox(value=30 if countSp == 0 else 0))
+            self.speedLayout.addWidget(QLabel(sp), countSp + 1, 0)
+            self.speedLayout.addWidget(self.speedInputs[countSp], countSp + 1, 1)
+            countSp += 1
+
+        self.speedLayout.addWidget(QLabel("Senses"), countSp + 2, 0, 1, 2)
+        countSe = 0
+        self.senseInputs = []
+        for se in senses.all():
+            self.senseInputs.append(QSpinBox())
+            self.speedLayout.addWidget(QLabel(se["sense"]), countSe + countSp + 3, 0)
+            self.speedLayout.addWidget(self.senseInputs[countSe], countSe + countSp + 3, 1)
+            countSe += 1
+
+        # Create a shell for the body elements like skills and actions to exist in
+        self.bodyLayout = QGridLayout()
+        # Add the skill, action, and speed layouts and give them each space
+        self.bodyLayout.addLayout(self.skillLayout, 0, 0, -1, 2)
+        self.bodyLayout.addLayout(self.infoLayout, 0, 3, -1, 4)
+        self.bodyLayout.addLayout(self.speedLayout, 0, 7, -1, 2)
+        # Add body layout to the form
+        self.mid.addLayout(self.bodyLayout)
+
+        # Add previously saved data if this is an edit
+        if type == Interactions.EDIT:
+            self.inPary = target["inparty"]
+            # Handle all numerical or text values
+            self.level.setValue(target["level"])
+            self.maxHP.setValue(target["hp"])
+            self.ac.setValue(target["ac"])
+            self.init.setValue(target["initiative"])
+            self.notes.setPlainText(target["notes"])
+            # Handle true/false markers
+            if target["jack_of_trades"]:
+                self.jackOfTrades.setChecked(True)
+            # Prefill dropdown menus that aren't in groups
+            self.charSize.setCurrentIndex(target["size"] - 1)
+            self.charSpec.setCurrentIndex(target["species"] - 1)
+            self.align.setCurrentText(target["alignment"])
+            # Prefill stat list and saves
+            for st in range(6):
+                self.statInputs[st].setValue(target["ability_scores"][st])
+                if target["saves"][st] == 1:
+                    savesGroup.button(st).setChecked(True)
+                    self.saves[st] = 1
+            # Prefill Character Classes
+            classStr = ""
+            for k, v in target["class"].items():
+                self.classDict[k] = v
+                classStr += f"{k} {v}, "
+            self.charClass.setText(classStr[0: -2])
+            # Prefill all other grouped categories
+            # Speeds
+            for i in range(len(target["speed"])):
+                self.speedInputs[i].setValue(target["speed"][i])
+            # Senses
+            for i in range(len(target["senses"])):
+                self.senseInputs[i].setValue(target["senses"][i])
+            # Skills
+            for i in range(len(target["skills"])):
+                profInv = {val: key for key, val in profDict.items()}
+                self.skillInputs[i].setCurrentText(profInv[target["skills"][i]])
+            # Damage Types
+            for i in range(len(target["damage_types"])):
+                damageInv = {val: key for key, val in damageDict.items()}
+                self.damageInputs[i].setCurrentText(damageInv[target["damage_types"][i]])
+
+    def onToggle(self, button, checked):
+        # Add to the saves list if checked, remove if unchecked.
+        if checked:
+            self.saves[statDict[button.text()[0: -5]]] = 1
+        else:
+            self.saves[statDict[button.text()[0: -5]]] = 0
+
+    def classPopup(self):
+        classDialog(self).exec()
 
     def confirmAction(self):
-        return super().confirmAction()
+        speeds = [0 for i in range(5)]
+        stats = [0 for i in range(6)]
+        skills = [0 for i in range(18)]
+        weakness = [0 for i in range(13)]
+        senses = [0 for i in range(4)]
+
+        # Condense all stat spinboxes down into a single array.
+        for i in range(len(self.statInputs)):
+            stats[i] = self.statInputs[i].value()
+        # Condense all skill inputs into a single array.
+        for i in range(len(self.skillInputs)):
+            skills[i] = profDict[self.skillInputs[i].currentText()]
+        # Condense all damage type inputs into a single array.
+        for i in range(len(self.damageInputs)):
+            weakness[i] = damageDict[self.damageInputs[i].currentText()]
+        # Condense all speed spinboxes down into a single array.
+        for i in range(len(self.speedInputs)):
+            speeds[i] = self.speedInputs[i].value()
+        # Condense all sense spinboxes down into a single array.
+        for i in range(len(self.senseInputs)):
+            senses[i] = self.senseInputs[i].value()
+
+        match self.type:
+            case Interactions.ADD:
+                players.insert(
+                    {
+                        "name": self.name.text(),
+                        "level": self.level.value(),
+                        "class": self.classDict,
+                        "hp": self.maxHP.value(),
+                        "ac": self.ac.value(),
+                        "size": self.charSize.currentIndex() + 1,
+                        "alignment": self.align.currentText(),
+                        "initiative": self.init.value(),
+                        "species": self.charSpec.currentIndex() + 1,
+                        "speed": speeds,
+                        "ability_scores": stats,
+                        "saves": self.saves,
+                        "skills": skills,
+                        "jack_of_trades": (
+                            True if self.jackOfTrades.isChecked() else False
+                        ),
+                        "senses": senses,
+                        "damage_types": weakness,
+                        "notes": self.notes.toPlainText(),
+                        "inparty": self.inPary,
+                    }
+                )
+            case Interactions.EDIT:
+                players.upsert(Document(
+                    {
+                        "name": self.name.text(),
+                        "level": self.level.value(),
+                        "class": self.classDict,
+                        "hp": self.maxHP.value(),
+                        "ac": self.ac.value(),
+                        "size": self.charSize.currentIndex() + 1,
+                        "alignment": self.align.currentText(),
+                        "initiative": self.init.value(),
+                        "species": self.charSpec.currentIndex() + 1,
+                        "speed": speeds,
+                        "ability_scores": stats,
+                        "saves": self.saves,
+                        "skills": skills,
+                        "jack_of_trades": True if self.jackOfTrades.isChecked() else False,
+                        "senses": senses,
+                        "damage_types": weakness,
+                        "notes": self.notes.toPlainText(),
+                        "inparty": self.inPary
+                    }, doc_id=self.target.doc_id))
+        self.source.populate()
+        self.source.show()
+        self.destruct()
 
 
 """
@@ -692,6 +1344,7 @@ class monsterTypeInteract(dbInteract):
         self.source.show()
         self.destruct()
 
+
 """
 conditionsInteract: Interact with conditions in the database by either adding new
     entries or manipulating existing ones.
@@ -711,7 +1364,7 @@ class conditionInteract(dbInteract):
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll.setWidgetResizable(True)
         self.scroll.setWidget(self.effectArea)
-        self.layout.addWidget(self.scroll, 2, 1)
+        self.layout.addWidget(self.scroll, 1, 0)
 
         effectLabel = QLabel("Condition Effects:")
         self.mid.addWidget(effectLabel)
@@ -725,7 +1378,7 @@ class conditionInteract(dbInteract):
 
         self.additionalEffect = QPushButton("Add New Effect")
         self.additionalEffect.clicked.connect(self.addEffect)
-        self.foot.addWidget(self.additionalEffect, 2, 1)
+        self.foot.addWidget(self.additionalEffect, 1, 0)
 
     def addEffect(self):
         self.mid.addWidget(QLineEdit())

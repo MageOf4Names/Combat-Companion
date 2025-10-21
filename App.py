@@ -133,5 +133,8 @@ app.setStyle("windowsvista")
 window = MainWindow()
 window.show()
 
+# Test line to open the current working window
+window.playerDB.show()
+
 # Start the app on the main screen
 app.exec()

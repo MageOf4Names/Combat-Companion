@@ -10,6 +10,7 @@ Last updated: 4/10/2025
 TODO:
 """
 
+import gc
 import re
 import math
 import random as rd
@@ -63,6 +64,15 @@ alignments = [
     "Chaotic Evil",
 ]
 
+# List of all movement speed types in dnd 5e and 2024 edition
+movements = [
+    "Walk",
+    "Swim",
+    "Climb",
+    "Burrow",
+    "Fly"
+]
+
 # Dictionary for translating stat names into list order
 statDict = {
     "Strength": 0,
@@ -73,10 +83,32 @@ statDict = {
     "Charisma": 5,
 }
 
+# Dictionary for translating skill proviciencies into values
+profDict = {
+    "Neutral" : 0,
+    "Proficient" : 1,
+    "Expertise": 2
+}
+
+# Dictionary for translating damage modifiers to values
+damageDict = {
+    "Neutral": 0,
+    "Vulnerable": 1,
+    "Resistant": -1,
+    "Immune": -2
+}
+
 class Interactions(Enum):
     ADD = 1
     EDIT = 2
     DELETE = 3
+
+
+class ActionType(Enum):
+    ACTION = 1
+    TRAIT = 2
+    LEG_ACTION = 3
+    LAIR_ACTION = 4
 
 
 # Takes in a player level or creature CR and outputs the corresponding proviciency modifier.
