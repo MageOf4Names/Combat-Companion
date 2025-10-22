@@ -35,6 +35,16 @@ class dbView(QMainWindow):
         # Add to the main layout
         layout.addWidget(self.label)
 
+        # Define the search bar area and populate it with the name search and button
+        self.search = QGridLayout()
+        self.searchName = QLineEdit()
+        self.searchSubmit = QPushButton("Submit")
+        self.searchSubmit.clicked.connect(lambda: self.populate({"name": self.searchName.text()}))
+        self.search.addWidget(QLabel("Search by Name:"), 0, 0)
+        self.search.addWidget(self.searchName, 0, 1)
+        self.search.addWidget(self.searchSubmit, 1, 0)
+        layout.addLayout(self.search)
+
         # Create the layout for the area and populate it with the appropriate data
         self.data = QVBoxLayout()
         self.populate()
@@ -88,10 +98,18 @@ class dbView(QMainWindow):
     def edit(self, target):
         print('Edit')
 
-    def populate(self):
+    def populate(self, criteria=None):
         for i in range(25):
             dbEntry = QLabel(f"Tex Label {i}")
             self.data.addWidget(dbEntry)
+
+    def searchCheck(self, target, criteria):
+        if criteria == None:
+            return True
+        for attr, search in criteria.items():
+            if search != "" and search.lower() not in target[attr].lower():
+                return False
+        return True
 
     def cleanData(self):
         while (self.data.itemAt(0) != None):
@@ -117,11 +135,14 @@ class monsterView(dbView):
         self.label.setText('Monsters')
         self.addButton.setText('Add a new Monstser')
 
-    def populate(self):
+    def populate(self, criteria=None):
         # Clear all previous data in the section
         self.cleanData()
         # Go through all monsters in the database and generate a miniView widget
         for m in monsters.all():
+            # Skip this iteration if the entry doesn't meet search criteria
+            if not self.searchCheck(m, criteria):
+                continue
             # Create a list of HBoxLayouts to send to the miniView constructor
             rows = [QHBoxLayout() for i in range(3)]
             # Pull information from database and assign them to widgets
@@ -162,11 +183,14 @@ class playerView(dbView):
         self.label.setText('Player Characters')
         self.addButton.setText('Add a new Player Character')
 
-    def populate(self):
+    def populate(self, criteria=None):
         # Clear all previous data in the section
         self.cleanData()
         # Go through all player characters in the database and generate a miniView widget
         for p in players.all():
+            # Skip this iteration if the entry doesn't meet search criteria
+            if not self.searchCheck(p, criteria):
+                continue
             # Create a list of HBoxLayouts to send to the miniView constructor
             rows = [QHBoxLayout() for i in range(3)]
             # Pull information from database and assign them to widgets
@@ -232,11 +256,14 @@ class speciesView(dbView):
         self.label.setText('Species')
         self.addButton.setText('Add a new Species')
 
-    def populate(self):
+    def populate(self, criteria=None):
         # Clear all previous data in the section
         self.cleanData()
         # Go through all species in the database and generate a miniView widget
         for s in species.all():
+            # Skip this iteration if the entry doesn't meet search criteria
+            if not self.searchCheck(s, criteria):
+                continue
             # Create a list of HBoxLayouts to send to the miniView constructor
             rows = [QHBoxLayout() for i in range(2)]
             # Pull information from database and assign them to widgets
@@ -275,11 +302,14 @@ class classView(dbView):
         self.label.setText('Player Classes')
         self.addButton.setText('Add a new Class')
 
-    def populate(self):
+    def populate(self, criteria=None):
         # Clear all previous data in the section
         self.cleanData()
         # Go through all player classes in the database and generate a miniView widget
         for c in classes.all():
+            # Skip this iteration if the entry doesn't meet search criteria
+            if not self.searchCheck(c, criteria):
+                continue
             # Create a list of HBoxLayouts to send to the miniView constructor
             rows = [QHBoxLayout() for i in range(2)]
             # Pull information from database and assign them to widgets
@@ -314,12 +344,15 @@ class monsterTypeView(dbView):
         self.label.setText('Database')
         self.addButton.setText('Add a new Monster Type')
 
-    def populate(self):
+    def populate(self, criteria=None):
         charLimit = 100
         # Clear all previous data in the section
         self.cleanData()
         # Go through all monster types in the database and generate a miniView widget
         for t in types.all():
+            # Skip this iteration if the entry doesn't meet search criteria
+            if not self.searchCheck(t, criteria):
+                continue
             # Create a list of HBoxLayouts to send to the miniView constructor
             rows = [QHBoxLayout() for i in range(2)]
             # Pull information from database and assign them to widgets
@@ -356,12 +389,15 @@ class conditionView(dbView):
         self.label.setText('Conditions')
         self.addButton.setText('Add a new Condition')
 
-    def populate(self):
+    def populate(self, criteria=None):
         charLimit = 100
         # Clear all previous data in the section
         self.cleanData()
         # Go through all conditions in the database and generate a miniView for each
         for c in conditions.all():
+            # Skip this iteration if the entry doesn't meet search criteria
+            if not self.searchCheck(c, criteria):
+                continue
             # Create a list of HBoxLayouts for name and each sub-effect of the condition
             rows = [QHBoxLayout() for i in range(len(c['effects']) + 1)]
             # Tracks current row for effects
@@ -928,6 +964,7 @@ class playerInteract(dbInteract):
 
         # Add hp, ac, alignment, and initiative to the head layout
         self.maxHP = QSpinBox()
+        self.maxHP.setMaximum(999)
         self.ac = QSpinBox(value=10)
         self.align = QComboBox()
         self.align.addItems(alignments)
